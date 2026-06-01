@@ -297,7 +297,6 @@ export const AdminDashboard: React.FC = () => {
 
   // SubClassroom hooks & state
   const createSubClassroom = useCreateSubClassroom();
-  const deleteSubClassroom = useDeleteSubClassroom();
   const assignStudentsToSubClassroom = useAssignStudentsToSubClassroom();
   const removeStudentFromSubClassroom = useRemoveStudentFromSubClassroom();
 

@@ -5,7 +5,6 @@ import { Search, Calendar, CheckCircle2, XCircle, AlertCircle, Award, FileSpread
 import { cn } from '../lib/utils';
 
 export const MutabaahMurojaahReport: React.FC = () => {
-  const user = api.getUser();
   const { data: reportData = [], isLoading, error } = useHomeMurajaahReport();
   
   // Local Filter States
