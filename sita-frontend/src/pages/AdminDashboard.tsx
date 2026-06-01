@@ -2883,6 +2883,7 @@ export const AdminDashboard: React.FC = () => {
                 >
                   <option value="student">Santri / Siswa</option>
                   <option value="ustadz">Ustadz / Pengajar</option>
+                  <option value="koordinator">Koordinator Tahfidz</option>
                   <option value="parent">Orang Tua / Wali</option>
                   <option value="admin">Administrator</option>
                 </select>
