@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSitaDocumentation } from '../hooks/useQueries';
-import { ChevronLeft, ChevronRight, Clock } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 interface DocumentationPhoto {
@@ -111,7 +111,7 @@ export const SitaActivitiesSlider: React.FC = () => {
       {/* Pagination Indicators (Dots) */}
       {activeSlides.length > 1 && (
         <div className="absolute bottom-3 right-4 flex items-center gap-1.5 z-10">
-          {activeSlides.map((_, idx) => (
+          {activeSlides.map((_: any, idx: number) => (
             <button
               key={idx}
               onClick={(e) => {

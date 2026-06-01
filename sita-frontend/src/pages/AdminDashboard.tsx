@@ -315,7 +315,6 @@ export const AdminDashboard: React.FC = () => {
   const [newAcademicYearName, setNewAcademicYearName] = useState('');
   const [showAcademicYearModal, setShowAcademicYearModal] = useState(false);
 
-  const [selectedClassroomId, setSelectedClassroomId] = useState<number | null>(null);
   const [showClassroomModal, setShowClassroomModal] = useState(false);
   const [newClassroomName, setNewClassroomName] = useState('');
   const [newClassroomAcademicYearId, setNewClassroomAcademicYearId] = useState('');
@@ -404,21 +403,6 @@ export const AdminDashboard: React.FC = () => {
     }
   };
 
-  const handleDeleteSubClassroom = async (subClassroomId: number, classroomId: number) => {
-    if (!window.confirm('Hapus sub-kelas ini beserta semua data anggota di dalamnya?')) return;
-    try {
-      await deleteSubClassroom.mutateAsync({ id: subClassroomId, classroomId });
-    } catch (err: any) {
-      alert('Gagal menghapus sub-kelas: ' + err.message);
-    }
-  };
-
-  const handleOpenSubClassroomMembers = (subClassroom: any) => {
-    setSelectedSubClassroomForMembers(subClassroom);
-    setShowSubClassroomMembersModal(true);
-    setNewSubClassroomMemberStudentId('');
-  };
-
   const handleAssignStudentToSubClassroom = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedSubClassroomForMembers || !newSubClassroomMemberStudentId) return;
@@ -444,12 +428,6 @@ export const AdminDashboard: React.FC = () => {
     } catch (err: any) {
       alert('Gagal mengeluarkan santri dari sub-kelas: ' + err.message);
     }
-  };
-
-  const handleOpenClassroomMembers = (classroom: any) => {
-    setSelectedClassroomForMembers(classroom);
-    setShowClassroomMembersModal(true);
-    setNewClassroomMemberStudentId('');
   };
 
   const handleAssignStudentToClassroom = async (e: React.FormEvent) => {
@@ -2381,7 +2359,7 @@ export const AdminDashboard: React.FC = () => {
                                      <div className="flex justify-between items-center mb-2">
                                        <h5 className="text-xs font-extrabold text-gray-400 uppercase tracking-wider">Sub-Kelas di {cls.name}</h5>
                                      </div>
-                                     <SubClassroomList classroomId={cls.id} usersList={usersList} />
+                                      <SubClassroomList classroomId={cls.id} />
                                    </div>
                                  </td>
                                </tr>
@@ -3341,10 +3319,9 @@ export const AdminDashboard: React.FC = () => {
 
 interface SubClassroomListProps {
   classroomId: number;
-  usersList: any[];
 }
 
-const SubClassroomList: React.FC<SubClassroomListProps> = ({ classroomId, usersList }) => {
+const SubClassroomList: React.FC<SubClassroomListProps> = ({ classroomId }) => {
   const { data: subClassrooms = [], isLoading } = useSubClassrooms(classroomId);
   const deleteSubClassroom = useDeleteSubClassroom();
 

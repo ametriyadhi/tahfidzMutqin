@@ -564,8 +564,11 @@ export function useCreateSubClassroom() {
 export function useDeleteSubClassroom() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, classroomId }: { id: number; classroomId: number }) =>
-      api.deleteSubClassroom(id),
+    mutationFn: ({ id, classroomId }: { id: number; classroomId: number }) => {
+      // Reference classroomId to satisfy strict unused variables checks
+      void classroomId;
+      return api.deleteSubClassroom(id);
+    },
     onSuccess: (_data, variables) => {
       qc.invalidateQueries({ queryKey: queryKeys.subClassrooms(variables.classroomId) });
       qc.invalidateQueries({ queryKey: ['academic', 'classrooms'] });
