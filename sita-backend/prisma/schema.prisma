@@ -1,0 +1,353 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         String   // "admin" | "ustadz" | "student" | "parent"
+  nis          String?
+  avatarUrl    String?
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  levelId      Int?
+
+  // Relations
+  level             HafalanLevel?    @relation("StudentLevel", fields: [levelId], references: [id])
+  halaqahsAsUstadz  Halaqah[]        @relation("HalaqahUstadz")
+  halaqahStudents   HalaqahStudent[]
+  parentsOfStudent  StudentParent[]  @relation("StudentRelation")
+  studentsOfParent  StudentParent[]  @relation("ParentRelation")
+  sessionsAsStudent SessionLog[]     @relation("StudentSessions")
+  sessionsAsUstadz  SessionLog[]     @relation("UstadzSessions")
+  examsAsStudent    JuziyahExam[]    @relation("StudentExams")
+  examsAsUstadz     JuziyahExam[]    @relation("UstadzExams")
+  notifications     Notification[]
+  messagesSent      Message[]        @relation("MessageSender")
+  messagesReceived  Message[]        @relation("MessageReceiver")
+  messagesAbout     Message[]        @relation("MessageStudent")
+  customFieldValues CustomFieldValue[] @relation("UserCustomFields")
+  classroomStudents ClassroomStudent[] @relation("StudentClassrooms")
+  subClassroomStudents SubClassroomStudent[] @relation("StudentSubClassrooms")
+  homeAssignmentsAsStudent HomeMurajaahAssignment[] @relation("StudentHomeMurajaah")
+  homeAssignmentsAsUstadz  HomeMurajaahAssignment[] @relation("UstadzHomeMurajaah")
+}
+
+model Halaqah {
+  id          Int      @id @default(autoincrement())
+  name        String
+  ustadzId    Int
+  description String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  ustadz   User             @relation("HalaqahUstadz", fields: [ustadzId], references: [id])
+  students HalaqahStudent[]
+  sessions SessionLog[]
+}
+
+model HalaqahStudent {
+  id        Int      @id @default(autoincrement())
+  halaqahId Int
+  studentId Int
+  joinedAt  DateTime @default(now())
+
+  halaqah   Halaqah  @relation(fields: [halaqahId], references: [id], onDelete: Cascade)
+  student   User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+}
+
+model StudentParent {
+  id           Int    @id @default(autoincrement())
+  studentId    Int
+  parentId     Int
+  relationship String // "ayah" | "ibu" | "wali"
+
+  student User @relation("StudentRelation", fields: [studentId], references: [id], onDelete: Cascade)
+  parent  User @relation("ParentRelation", fields: [parentId], references: [id], onDelete: Cascade)
+}
+
+model SessionLog {
+  id                    String    @id @default(uuid())
+  studentId             Int
+  ustadzId              Int
+  halaqahId             Int
+  sessionType           String    // "setoran_baru" | "murajaah"
+  surahId               Int
+  startAyah             Int
+  endAyah               Int
+  juzId                 Int?
+  setoranScope          String?   // "halaman" | "seperempat_juz" | "setengah_juz" | "tasmi_juz"
+  pageNumber            Int?      // specific page number (1-604) for "halaman"
+  startPage             Int?      // start page range
+  endPage               Int?      // end page range
+  totalWords            Int
+  errorJaliCount        Int
+  errorKhafiCount       Int
+  errorTarkCount        Int
+  scoreInitial          Int       @default(100)
+  scoreFinal            Float
+  status                String    // "lulus" | "mengulang"
+  notesUstadz           String?
+  scoringConfigSnapshot String    // Stringified JSON
+  startedAt             DateTime  @default(now())
+  finishedAt            DateTime?
+  createdAt             DateTime  @default(now())
+  academicYearId        Int?
+  classroomId           Int?
+
+  student      User            @relation("StudentSessions", fields: [studentId], references: [id])
+  ustadz       User            @relation("UstadzSessions", fields: [ustadzId], references: [id])
+  halaqah      Halaqah         @relation(fields: [halaqahId], references: [id])
+  academicYear AcademicYear?   @relation(fields: [academicYearId], references: [id], onDelete: SetNull)
+  classroom    Classroom?      @relation(fields: [classroomId], references: [id], onDelete: SetNull)
+  errors       ErrorBookmark[]
+}
+
+model ErrorBookmark {
+  id             String   @id @default(uuid())
+  sessionId      String
+  surahId        Int
+  ayahId         Int
+  wordIndex      Int
+  wordTextAr     String
+  errorType      String   // "jali" | "khafi" | "tark"
+  penaltyApplied Int
+  note           String?
+  createdAt      DateTime @default(now())
+
+  session SessionLog @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+}
+
+model ScoringConfig {
+  id            Int      @id @default(autoincrement())
+  scoreInitial  Int      @default(100)
+  penaltyJali   Int      @default(3)
+  penaltyKhafi  Int      @default(1)
+  penaltyTark   Int      @default(2)
+  passThreshold Int      @default(80)
+  updatedBy     Int
+  updatedAt     DateTime @updatedAt
+}
+
+model Notification {
+  id          String   @id @default(uuid())
+  recipientId Int
+  type        String
+  title       String
+  body        String
+  data        String?  // Stringified JSON
+  isRead      Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  recipient User @relation(fields: [recipientId], references: [id], onDelete: Cascade)
+}
+
+model Message {
+  id          String   @id @default(uuid())
+  senderId    Int
+  receiverId  Int
+  studentId   Int
+  content     String
+  isRead      Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  sender      User @relation("MessageSender", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver    User @relation("MessageReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
+  student     User @relation("MessageStudent", fields: [studentId], references: [id], onDelete: Cascade)
+}
+
+// Full Quran structures
+model Surah {
+  id     Int    @id
+  nameAr String
+  nameEn String
+  ayahs  Ayah[]
+}
+
+model Ayah {
+  id      Int    @id @default(autoincrement())
+  surahId Int
+  ayahId  Int
+  text    String
+
+  surah Surah @relation(fields: [surahId], references: [id], onDelete: Cascade)
+}
+
+model WhiteLabelConfig {
+  id         Int      @id @default(1)
+  appName    String   @default("SITA Tahfidz")
+  appLogo    String?  // Base64 encoded logo for headers/navbars
+  loginLogo  String?  // Base64 encoded logo for the login screen
+  footerText String   @default("Sistem Digital Setoran Tahfidz")
+  updatedAt  DateTime @updatedAt
+}
+
+model HafalanLevel {
+  id         Int      @id @default(autoincrement())
+  name       String
+  juzCount   Int      @default(1)
+  juzList    String   // Comma-separated list of juz, e.g. "30" or "29,30"
+  targetDays Int      @default(30)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  students   User[]   @relation("StudentLevel")
+}
+
+model JuziyahExam {
+  id             String       @id @default(uuid())
+  studentId      Int
+  ustadzId       Int
+  juzId          Int
+  status         String       // "pending" | "lulus" | "mengulang"
+  score          Float?
+  notes          String?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  student        User         @relation("StudentExams", fields: [studentId], references: [id], onDelete: Cascade)
+  ustadz         User         @relation("UstadzExams", fields: [ustadzId], references: [id], onDelete: Cascade)
+  certificate    Certificate?
+}
+
+model Certificate {
+  id             String      @id @default(uuid())
+  examId         String      @unique
+  certificateNo  String      @unique // e.g. SITA/CERT/2026/05/0001
+  issuedAt       DateTime    @default(now())
+
+  exam           JuziyahExam @relation(fields: [examId], references: [id], onDelete: Cascade)
+}
+
+model CustomField {
+  id           Int      @id @default(autoincrement())
+  role         String   // "ustadz" | "student" | "parent"
+  fieldName    String
+  fieldType    String   // "text" | "number" | "date" | "select"
+  options      String?  // Comma-separated options for select type
+  isRequired   Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  values       CustomFieldValue[]
+}
+
+model CustomFieldValue {
+  id           Int      @id @default(autoincrement())
+  userId       Int
+  fieldId      Int
+  value        String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user         User        @relation("UserCustomFields", fields: [userId], references: [id], onDelete: Cascade)
+  field        CustomField @relation(fields: [fieldId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, fieldId])
+}
+
+model AcademicYear {
+  id        Int       @id @default(autoincrement())
+  name      String    @unique // Contoh: "2025/2026"
+  isActive  Boolean   @default(false)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  classrooms Classroom[]
+  sessions   SessionLog[]
+}
+
+model Classroom {
+  id             Int          @id @default(autoincrement())
+  name           String       // Contoh: "Kelas 10-A", "Kelas XI-B"
+  academicYearId Int
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  academicYear   AcademicYear @relation(fields: [academicYearId], references: [id], onDelete: Cascade)
+  students       ClassroomStudent[]
+  subClassrooms  SubClassroom[]
+  sessions       SessionLog[]
+}
+
+model ClassroomStudent {
+  id          Int       @id @default(autoincrement())
+  classroomId Int
+  studentId   Int
+  joinedAt    DateTime  @default(now())
+
+  classroom   Classroom @relation(fields: [classroomId], references: [id], onDelete: Cascade)
+  student     User      @relation("StudentClassrooms", fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([classroomId, studentId])
+}
+
+// ─── SUB KELAS ──────────────────────────────────────────
+
+model SubClassroom {
+  id          Int       @id @default(autoincrement())
+  name        String    // Contoh: "10-A", "10-B", "10 Tahfidz"
+  classroomId Int
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  classroom   Classroom          @relation(fields: [classroomId], references: [id], onDelete: Cascade)
+  students    SubClassroomStudent[]
+}
+
+model SubClassroomStudent {
+  id             Int          @id @default(autoincrement())
+  subClassroomId Int
+  studentId      Int
+  joinedAt       DateTime     @default(now())
+
+  subClassroom   SubClassroom @relation(fields: [subClassroomId], references: [id], onDelete: Cascade)
+  student        User         @relation("StudentSubClassrooms", fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([subClassroomId, studentId])
+}
+
+// ─── TUGAS MURAJAAH DI RUMAH (MUTABAAH HARIAN) ──────────
+
+model HomeMurajaahAssignment {
+  id              String    @id @default(uuid())
+  studentId       Int
+  ustadzId        Int
+  assignedDate    String    // format "YYYY-MM-DD" atau string tanggal hari itu
+  shift           String    // "subuh" | "magrib"
+  targetType      String    // "surat" | "juz"
+  targetName      String    // Nama target e.g. "Juz 30", "An-Naba - Al-Inshiqaq"
+  
+  // Feedback Orang Tua
+  isExecuted      Boolean?  // Melaksanakan/tidak
+  isTargetMet     Boolean?  // Sesuai target/tidak
+  isFluent        Boolean?  // Lancar/tidak
+  parentSignature String?   // Tanda Tangan Orangtua (Nama Penandatangan)
+  parentNotes     String?   // Keterangan / Catatan
+  feedbackAt      DateTime?
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  student         User      @relation("StudentHomeMurajaah", fields: [studentId], references: [id], onDelete: Cascade)
+  ustadz          User      @relation("UstadzHomeMurajaah", fields: [ustadzId], references: [id], onDelete: Cascade)
+}
+
+// ─── DOKUMENTASI & KEGIATAN SITA ────────────────────────
+
+model SitaDocumentation {
+  id        Int      @id @default(autoincrement())
+  title     String
+  imageUrl  String   // base64 atau url foto landscape
+  tag       String?  @default("Kegiatan")
+  createdAt DateTime @default(now())
+}
+

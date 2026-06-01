@@ -1,0 +1,1226 @@
+﻿
+Product Requirements Document (PRD)
+Sistem Digital Setoran Tahfidz (SITA) — Versi 2.0
+Versi Dokumen:
+ 2.0
+Tanggal:
+ 2025
+Status:
+ Draft Final
+Author:
+ Tim Produk SITA
+Daftar Isi
+Pendahuluan &amp; Latar Belakang
+Tujuan &amp; Sasaran Produk
+Stakeholders &amp; Pengguna
+Ruang Lingkup Sistem
+Fitur Utama — Detail Lengkap
+5A. Modul Autentikasi &amp; Manajemen Akun
+5B. Dashboard Ustadz (Penyimak)
+5C. Interactive Quran Reader &amp; Word-Level Bookmarking
+5D. Sistem Penilaian (Scoring Engine)
+5E. Dashboard Santri &amp; Laporan Hafalan
+5F. Dashboard Orang Tua
+5G. Dashboard Admin / Lembaga
+Arsitektur Data (Database Schema)
+Alur Pengguna (User Flow)
+Persyaratan Teknis
+Persyaratan Non-Fungsional
+Kriteria Penerimaan (Acceptance Criteria)
+Roadmap &amp; Prioritas Fitur
+Asumsi &amp; Batasan
+Glosarium
+1. Pendahuluan &amp; Latar Belakang
+1.1 Deskripsi Produk
+Sistem Digital Setoran Tahfidz (SITA)
+ adalah aplikasi manajemen hafalan Al-Qur'an berbasis web yang dirancang untuk mendigitalisasi proses 
+talaqqi
+ (setoran hafalan secara langsung antara santri dan ustadz). Sistem ini memungkinkan ustadz/pengajar untuk menyimak hafalan, menandai kesalahan pada tingkat kata (
+word-level bookmarking
+), dan memberikan penilaian secara otomatis dan objektif.
+1.2 Latar Belakang Masalah
+Proses setoran hafalan Al-Qur'an (talaqqi) secara tradisional memiliki beberapa kelemahan:
+Masalah
+Dampak
+Catatan kesalahan ditulis manual di kartu/buku
+Rawan hilang, sulit dianalisis secara historis
+Penilaian bersifat subjektif per ustadz
+Standar kelulusan tidak konsisten
+Orang tua tidak memiliki akses real-time
+Sulit memantau perkembangan anak
+Tidak ada data agregat kesalahan
+Santri tidak tahu pola kesalahan berulang
+Rekap laporan dilakukan manual
+Membutuhkan waktu admin yang signifikan
+1.3 Solusi yang Ditawarkan
+SITA hadir sebagai platform digital yang menjembatani seluruh stakeholder dalam ekosistem tahfidz: ustadz, santri, orang tua, dan manajemen lembaga — dengan satu sistem terintegrasi berbasis data.
+2. Tujuan &amp; Sasaran Produk
+2.1 Tujuan Utama
+Digitalisasi Proses Talaqqi
+ — Menggantikan kartu setoran fisik dengan sistem digital yang akurat dan real-time.
+Presisi Feedback
+ — Memberikan informasi spesifik hingga level kata/huruf yang salah kepada santri.
+Objektivitas Penilaian
+ — Mengotomasi kalkulasi nilai berdasarkan aturan baku yang dapat dikonfigurasi lembaga.
+Transparansi Progres
+ — Menyediakan akses data hafalan bagi santri dan orang tua secara real-time.
+Analitik Lembaga
+ — Menghasilkan laporan agregat untuk manajemen mutu hafalan di tingkat lembaga.
+2.2 Key Performance Indicators (KPI)
+KPI
+Target
+Waktu input kesalahan per kata
+&lt; 3 detik
+Akurasi kalkulasi nilai
+100% (zero rounding error)
+Waktu load teks Al-Qur'an
+&lt; 2 detik
+Uptime sistem
+≥ 99.5%
+Adopsi ustadz aktif dalam 3 bulan pertama
+≥ 80%
+3. Stakeholders &amp; Pengguna
+3.1 Definisi Peran (Role)
+Role
+Deskripsi
+Akses Utama
+Admin Lembaga
+Pengelola sistem di tingkat pesantren/sekolah
+Manajemen user, konfigurasi sistem, laporan agregat
+Ustadz / Musyrif
+Pengajar yang menyimak dan menilai setoran
+Sesi setoran, bookmarking, penilaian
+Santri
+Peserta hafalan yang menyetor
+Log hafalan pribadi, laporan kesalahan, progres
+Orang Tua / Wali
+Pemantau perkembangan anak
+Read-only akses laporan anak
+3.2 User Personas
+Persona 1: Ustadz Hamid (Pengajar Utama)
+Mengajar 15–20 santri per hari
+Terbiasa dengan smartphone, kurang familiar dengan aplikasi kompleks
+Kebutuhan: antarmuka yang cepat, tidak membutuhkan banyak ketikan
+Persona 2: Fatimah (Santri, 15 tahun)
+Menghafal 1–2 halaman per minggu
+Ingin tahu di bagian mana sering salah
+Kebutuhan: laporan yang visual dan mudah dipahami
+Persona 3: Bapak Rizal (Orang Tua)
+Sibuk bekerja, tidak bisa selalu hadir
+Ingin memantau perkembangan hafalan anak dari jarak jauh
+Kebutuhan: notifikasi dan laporan ringkas yang mudah dibaca
+4. Ruang Lingkup Sistem
+4.1 Dalam Ruang Lingkup (In Scope)
+Manajemen akun multi-role (Admin, Ustadz, Santri, Orang Tua)
+Tampilan teks Al-Qur'an per kata dengan font Utsmani
+Sesi setoran dengan word-level bookmarking
+Kategorisasi kesalahan (Lahn Jali, Lahn Khafi, Tark)
+Mesin penilaian otomatis dan konfigurabel
+Dashboard laporan santri (log setoran, heatmap kesalahan)
+Dashboard orang tua (read-only progres anak)
+Dashboard admin (manajemen user, laporan agregat)
+Notifikasi dasar (in-app dan email)
+4.2 Di Luar Ruang Lingkup (Out of Scope — v1.0)
+Rekaman audio setoran
+Deteksi kesalahan otomatis berbasis AI/Speech Recognition
+Integrasi pembayaran SPP
+Aplikasi mobile native (iOS/Android) — direncanakan di v2.0
+5. Fitur Utama — Detail Lengkap
+5A. Modul Autentikasi &amp; Manajemen Akun
+5A.1 Login &amp; Registrasi
+Login menggunakan username/email dan password.
+Admin mendaftarkan akun ustadz dan santri secara bulk (via import CSV).
+Santri dapat didaftarkan manual oleh admin dengan pengisian data: nama lengkap, NIS, tanggal lahir, kelas/halaqah, wali.
+Dukungan lupa password via email reset link.
+5A.2 Manajemen Profil
+Setiap pengguna dapat mengedit data profil: foto, nomor kontak.
+Admin dapat menonaktifkan/mengaktifkan akun tanpa menghapus data historis.
+Tautan akun santri ke akun orang tua (relasi 
+student_id
+ → 
+parent_id
+).
+5A.3 Struktur Halaqah / Kelompok
+Admin membuat grup halaqah (misal: &quot;Kelas Tahfidz A&quot;, &quot;Halaqah Subuh&quot;).
+Satu halaqah memiliki satu ustadz utama (dapat lebih dari satu sebagai musyrif).
+Santri ditugaskan ke satu atau lebih halaqah.
+5B. Dashboard Ustadz (Penyimak)
+5B.1 Halaman Utama Ustadz
+Menampilkan daftar santri yang terdaftar di halaqah milik ustadz tersebut.
+Ringkasan aktivitas hari ini: jumlah sesi selesai, menunggu.
+Tombol cepat 
+&quot;Mulai Sesi Baru&quot;
+.
+5B.2 Inisiasi Sesi Setoran
+Sebelum sesi dimulai, ustadz mengisi form inisiasi:
+Field
+Tipe
+Keterangan
+Pilih Santri
+Dropdown/Search
+Daftar santri di halaqah
+Jenis Setoran
+Radio
+Setoran Baru / Murajaah
+Pilih Surah
+Dropdown
+Berdasarkan data Abdullah Ghanem DB
+Ayat Mulai
+Number Input
+Validasi: ≥ 1, ≤ total ayat surah
+Ayat Selesai
+Number Input
+Validasi: ≥ Ayat Mulai
+Catatan Awal
+Textarea (opsional)
+Kondisi santri hari ini, dll.
+Setelah konfirmasi, sistem menampilkan 
+Interactive Quran Reader
+ dan sesi dimulai.
+5B.3 Panel Kontrol Sesi (Real-time)
+Tampilan 
+nilai sementara
+ (skor live) di bagian atas layar, berubah saat kesalahan ditandai.
+Tombol 
+&quot;Tahan&quot; / Pause
+ untuk menghentikan sementara.
+Tombol 
+&quot;Selesai&quot;
+ untuk mengakhiri dan menyimpan sesi.
+Tombol 
+&quot;Batalkan Sesi&quot;
+ dengan konfirmasi (data tidak tersimpan).
+Catatan akhir ustadz (textarea) sebelum submit.
+5C. Interactive Quran Reader &amp; Word-Level Bookmarking
+Ini adalah fitur inti SITA. Tampilan ini menjadi tempat sesi setoran berlangsung secara interaktif.
+5C.1 Rendering Teks Al-Qur'an
+Teks Al-Qur'an ditampilkan 
+per kata
+, bukan per baris biasa.
+Setiap kata dirender sebagai elemen DOM yang dapat diklik/diketuk secara individual.
+Font: 
+Uthmanic Hafs
+ (KFGQPC Uthmanic Script HAFS) atau IndoPak — dikonfigurasi via admin untuk konsistensi 
+word_index
+.
+Arah teks: 
+RTL (Right-to-Left)
+ dengan tata letak yang mengikuti standar mushaf.
+Nomor ayat ditampilkan di antara setiap ayat.
+Ayat yang sedang &quot;aktif&quot; (sedang dibaca) dapat di-highlight secara manual oleh ustadz.
+5C.2 Mekanisme Word-Level Bookmarking
+Langkah 1 — Klik Kata:
+ Ustadz mengetuk/mengklik kata yang salah. Kata tersebut langsung ter-highlight dengan warna kuning (selected state).
+Langkah 2 — Pilih Jenis Kesalahan:
+ Sebuah popup/bottom-sheet kecil muncul berisi 4 pilihan:
+Pilihan
+Ikon
+Kode
+Lahn Jali (Salah Fatal)
+🔴
+JALI
+Lahn Khafi (Salah Tajwid)
+🟡
+KHAFI
+Tark / Lupa (Berhenti)
+⚫
+TARK
+Batal (Tidak jadi)
+✖
+—
+Langkah 3 — Konfirmasi:
+ Setelah jenis dipilih, kata berubah warna sesuai kategori kesalahan, dan poin penalty langsung dikurangi dari skor sementara. Popup ditutup otomatis.
+5C.3 Status Visual Kata
+State
+Warna
+Keterangan
+Normal
+Putih/Transparan
+Belum ada aksi
+Selected
+Kuning
+Diklik, menunggu kategori
+Lahn Jali
+Merah (#E53935)
+Kesalahan fatal tercatat
+Lahn Khafi
+Oranye (#FB8C00)
+Kesalahan tajwid tercatat
+Tark
+Abu-abu Gelap (#616161)
+Terhenti/lupa tercatat
+Pernah Salah (historis)
+Merah muda transparan
+Dari sesi sebelumnya (opsional toggle)
+5C.4 Manajemen Bookmark dalam Sesi
+Ustadz dapat 
+membatalkan bookmark
+ yang sudah dibuat (klik kata yang sudah ditandai → pilih &quot;Hapus Kesalahan&quot;). Skor dikembalikan.
+Edit bookmark:
+ mengubah kategori kesalahan (misal dari Jali ke Khafi). Skor disesuaikan otomatis.
+Undo terakhir:
+ tombol undo tersedia di panel kontrol untuk membatalkan aksi bookmark terakhir.
+Semua bookmark tersimpan sementara di client state; baru disimpan ke database saat &quot;Selesai&quot; ditekan.
+5C.5 Overlay Riwayat Kesalahan (Opsional Toggle)
+Ustadz dapat mengaktifkan toggle 
+&quot;Tampilkan Riwayat&quot;
+ yang menampilkan:
+Kata-kata yang pernah salah di sesi-sesi sebelumnya dengan overlay warna transparan.
+Tooltip saat hover: frekuensi kesalahan, tanggal terakhir salah.
+5D. Sistem Penilaian (Scoring Engine)
+5D.1 Nilai Awal &amp; Penalty
+Parameter
+Nilai Default
+Dapat Dikonfigurasi?
+Nilai Awal
+100 poin
+✅ Ya
+Penalty Lahn Jali
+-3 poin
+✅ Ya
+Penalty Lahn Khafi
+-1 poin
+✅ Ya
+Penalty Tark
+-2 poin
+✅ Ya
+Nilai Minimum (floor)
+0 poin
+✅ Ya
+Threshold Lulus
+80 poin
+✅ Ya
+Catatan:
+ Konfigurasi penalty dilakukan per-lembaga oleh Admin melalui halaman Pengaturan Sistem. Perubahan hanya berlaku untuk sesi yang dimulai setelah perubahan disimpan.
+5D.2 Kalkulasi Skor
+Skor Akhir = Max(0, Nilai Awal − (ΣJali × Penalty_Jali) − (ΣKhafi × Penalty_Khafi) − (ΣTark × Penalty_Tark))
+Contoh:
+Nilai awal: 100
+2 Lahn Jali: −6
+3 Lahn Khafi: −3
+1 Tark: −2
+Skor Akhir: 100 − 6 − 3 − 2 = 89 → Status: LULUS ✅
+5D.3 Penentuan Status Kelulusan
+Skor
+Status
+Label
+≥ Threshold (default 80)
+Lulus
+LULUS
+&lt; Threshold
+Mengulang
+MENGULANG
+Status 
+LULUS
+ berarti santri dapat melanjutkan ke halaman/surah berikutnya. Status 
+MENGULANG
+ berarti santri perlu menyetor ulang materi yang sama.
+5D.4 Presisi Kalkulasi
+Semua operasi aritmatika menggunakan bilangan bulat (integer) untuk menghindari floating-point error.
+Jika di masa depan dibutuhkan poin desimal (misal −0.5), gunakan integer dengan skala 10x (simpan 995 untuk representasi 99.5).
+5E. Dashboard Santri &amp; Laporan Hafalan
+5E.1 Halaman Utama Santri
+Ringkasan Progres:
+ Total halaman/juz yang telah disetorkan, target, dan persentase pencapaian.
+Status Terakhir:
+ Surah dan ayat terakhir yang disetorkan, skor, dan status.
+Streak Setoran:
+ Berapa hari berturut-turut santri menyetor (gamifikasi ringan).
+5E.2 Log Riwayat Setoran
+Tabel riwayat semua sesi setoran santri:
+Kolom
+Keterangan
+Tanggal &amp; Waktu
+Timestamp sesi
+Surah
+Nama surah yang disetorkan
+Rentang Ayat
+Ayat ke-n s/d ke-m
+Ustadz
+Nama ustadz penyimak
+Jenis Setoran
+Setoran Baru / Murajaah
+Jumlah Kesalahan
+Total bookmark (Jali/Khafi/Tark)
+Skor
+Nilai akhir
+Status
+Lulus / Mengulang
+Aksi
+Tombol &quot;Lihat Detail&quot;
+Filter tersedia: berdasarkan rentang tanggal, surah, status, jenis setoran.
+5E.3 Halaman Detail Sesi
+Menampilkan rekap lengkap satu sesi:
+Informasi sesi (santri, ustadz, surah, ayat, waktu mulai-selesai, durasi).
+Replay Teks:
+ Menampilkan teks Al-Qur'an dengan semua kata yang salah ter-highlight sesuai kategorinya (read-only, tidak bisa diedit).
+Tabel daftar kesalahan:
+No
+Surah
+Ayat
+Kata (Transliterasi)
+Teks Arab
+Jenis Kesalahan
+Poin Dikurangi
+1
+Al-Mulk
+3
+Al-Ghafur
+الغفور
+Lahn Khafi
+−1
+2
+Al-Mulk
+7
+Shaheequn
+ش
+َ
+ه
+ِ
+يق
+ٌ
+Lahn Jali
+−3
+Catatan ustadz (jika ada).
+Skor breakdown:
+ visualisasi pie chart atau bar kecil komposisi kesalahan.
+5E.4 Heatmap Kesalahan (Quran Error Map)
+Ini adalah fitur analitik utama bagi santri.
+Menampilkan teks Al-Qur'an (surah yang dipilih) secara keseluruhan.
+Setiap kata diwarnai berdasarkan 
+frekuensi kesalahan kumulatif
+ dari semua sesi:
+Frekuensi Kesalahan
+Warna
+0 (belum pernah salah)
+Putih / Transparan
+1–2 kali
+Kuning muda
+3–5 kali
+Oranye
+6–10 kali
+Merah muda
+&gt; 10 kali
+Merah pekat
+Hover/klik pada kata menampilkan tooltip: frekuensi total kesalahan, breakdown per kategori (Jali/Khafi/Tark), tanggal terakhir salah.
+Filter: pilih surah, rentang tanggal analisis.
+Tombol ekspor heatmap sebagai gambar (PNG) — opsional.
+5E.5 Laporan Progres Hafalan
+Grafik garis: perkembangan skor per sesi dari waktu ke waktu.
+Grafik batang: distribusi jenis kesalahan (Jali vs Khafi vs Tark) per bulan.
+Tabel: kata-kata dengan kesalahan terbanyak (Top 10 Most Missed Words).
+Indikator: total ayat yang sudah lulus, total ayat yang perlu diulang.
+5F. Dashboard Orang Tua
+Akses read-only ke laporan perkembangan anak.
+5F.1 Halaman Utama Orang Tua
+Jika memiliki lebih dari satu anak di sistem, tampilkan tab/selector per anak.
+Ringkasan: nama anak, halaqah, ustadz, last setoran, status terakhir.
+5F.2 Fitur Tersedia untuk Orang Tua
+Fitur
+Tersedia?
+Melihat log riwayat setoran
+✅
+Melihat detail sesi (teks + kesalahan)
+✅
+Melihat heatmap kesalahan
+✅
+Melihat grafik progres
+✅
+Menerima notifikasi setelah sesi selesai
+✅
+Membuat/edit sesi
+❌
+Mengubah data santri
+❌
+5F.3 Notifikasi Orang Tua
+Notifikasi in-app dan email dikirim setiap kali sesi santri selesai.
+Template notifikasi: &quot;Fatimah baru saja menyelesaikan setoran Al-Mulk ayat 1–10. Skor: 92/100 — 
+LULUS
+ ✅&quot;
+5G. Dashboard Admin / Lembaga
+5G.1 Manajemen Pengguna
+CRUD (Create, Read, Update, Deactivate) untuk akun: Admin, Ustadz, Santri, Orang Tua.
+Import data santri massal via file CSV dengan template yang disediakan.
+Pengelolaan halaqah: buat grup, assign ustadz, assign santri.
+Reset password pengguna.
+5G.2 Konfigurasi Sistem Penilaian
+Atur parameter penilaian global: nilai awal, penalty per kategori, threshold lulus.
+Catat log perubahan konfigurasi (siapa yang mengubah, kapan, nilai sebelum-sesudah).
+5G.3 Laporan &amp; Analitik Lembaga
+Laporan Rekap Harian/Mingguan/Bulanan:
+ Total sesi, rata-rata skor, persentase kelulusan.
+Peringkat Santri:
+ Berdasarkan total ayat lulus, rata-rata skor, konsistensi setoran.
+Laporan Per Ustadz:
+ Jumlah sesi disimak, distribusi nilai yang diberikan.
+Analisis Kata Sulit:
+ Kata-kata yang paling banyak salah di seluruh santri lembaga.
+Ekspor laporan ke format PDF dan Excel.
+6. Arsitektur Data (Database Schema)
+6.1 Tabel: 
+users
+Field
+Type
+Description
+id
+INT (Auto Increment)
+Primary Key
+name
+VARCHAR(255)
+Nama lengkap
+email
+VARCHAR(255)
+Email (unique)
+password_hash
+VARCHAR(255)
+Hash bcrypt
+role
+ENUM
+admin
+, 
+ustadz
+, 
+student
+, 
+parent
+nis
+VARCHAR(50) NULL
+Nomor Induk Santri (untuk santri)
+avatar_url
+VARCHAR(500) NULL
+URL foto profil
+is_active
+BOOLEAN
+Status akun aktif/nonaktif
+created_at
+TIMESTAMP
+updated_at
+TIMESTAMP
+6.2 Tabel: 
+halaqah
+Field
+Type
+Description
+id
+INT
+Primary Key
+name
+VARCHAR(255)
+Nama halaqah
+ustadz_id
+INT
+FK → 
+users.id
+ (ustadz utama)
+description
+TEXT NULL
+Deskripsi halaqah
+is_active
+BOOLEAN
+created_at
+TIMESTAMP
+6.3 Tabel: 
+halaqah_students
+Field
+Type
+Description
+id
+INT
+Primary Key
+halaqah_id
+INT
+FK → 
+halaqah.id
+student_id
+INT
+FK → 
+users.id
+joined_at
+DATE
+Tanggal bergabung
+6.4 Tabel: 
+student_parents
+Field
+Type
+Description
+id
+INT
+Primary Key
+student_id
+INT
+FK → 
+users.id
+parent_id
+INT
+FK → 
+users.id
+relationship
+VARCHAR(50)
+Ayah / Ibu / Wali
+6.5 Tabel: 
+session_logs
+Field
+Type
+Description
+id
+UUID
+Primary Key
+student_id
+INT
+FK → 
+users.id
+ustadz_id
+INT
+FK → 
+users.id
+halaqah_id
+INT
+FK → 
+halaqah.id
+session_type
+ENUM
+setoran_baru
+, 
+murajaah
+surah_id
+INT
+ID Surah dari DB Quran
+start_ayah
+INT
+Ayat mulai
+end_ayah
+INT
+Ayat selesai
+total_words
+INT
+Total kata dalam rentang ayat
+error_jali_count
+INT
+Jumlah Lahn Jali
+error_khafi_count
+INT
+Jumlah Lahn Khafi
+error_tark_count
+INT
+Jumlah Tark
+score_initial
+INT
+Nilai awal (snapshot config saat itu)
+score_final
+DECIMAL(5,2)
+Nilai akhir
+status
+ENUM
+lulus
+, 
+mengulang
+notes_ustadz
+TEXT NULL
+Catatan ustadz
+scoring_config_snapshot
+JSON
+Snapshot config penilaian saat sesi
+started_at
+TIMESTAMP
+Waktu sesi dimulai
+finished_at
+TIMESTAMP
+Waktu sesi selesai
+created_at
+TIMESTAMP
+6.6 Tabel: 
+error_bookmarks
+Field
+Type
+Description
+id
+UUID
+Primary Key
+session_id
+UUID
+FK → 
+session_logs.id
+surah_id
+INT
+ID Surah
+ayah_id
+INT
+ID/Nomor Ayat yang salah
+word_index
+INT
+Urutan kata ke-n dalam ayat (0-based)
+word_text_ar
+VARCHAR(100)
+Teks Arab kata tersebut (snapshot)
+error_type
+ENUM
+jali
+, 
+khafi
+, 
+tark
+penalty_applied
+INT
+Poin yang dikurangi (snapshot config)
+created_at
+TIMESTAMP
+Mengapa 
+word_text_ar
+ di-snapshot?
+ Untuk mengantisipasi update data Al-Qur'an di masa depan yang mungkin menggeser 
+word_index
+.
+6.7 Tabel: 
+scoring_config
+Field
+Type
+Description
+id
+INT
+Primary Key
+institution_id
+INT
+FK ke lembaga (jika multi-tenant)
+score_initial
+INT
+Nilai awal (default: 100)
+penalty_jali
+INT
+Penalty Lahn Jali (default: 3)
+penalty_khafi
+INT
+Penalty Lahn Khafi (default: 1)
+penalty_tark
+INT
+Penalty Tark (default: 2)
+pass_threshold
+INT
+Threshold lulus (default: 80)
+updated_by
+INT
+FK → 
+users.id
+updated_at
+TIMESTAMP
+6.8 Tabel: 
+notifications
+Field
+Type
+Description
+id
+UUID
+Primary Key
+recipient_id
+INT
+FK → 
+users.id
+type
+VARCHAR(100)
+Tipe notifikasi (session_complete, dll.)
+title
+VARCHAR(255)
+Judul notifikasi
+body
+TEXT
+Isi notifikasi
+data
+JSON NULL
+Data tambahan (session_id, dll.)
+is_read
+BOOLEAN
+Status dibaca
+created_at
+TIMESTAMP
+6.9 Relasi Database (Entity Relationship)
+users (Admin/Ustadz/Santri/Orang Tua)
+  │
+  ├──&lt; halaqah (dikelola oleh Ustadz)
+  │      │
+  │      └──&lt; halaqah_students &gt;── users (Santri)
+  │
+  ├──&lt; session_logs (ustadz_id, student_id, halaqah_id)
+  │      │
+  │      └──&lt; error_bookmarks (per kata yang salah)
+  │
+  ├──&lt; student_parents &gt;── users (Orang Tua)
+  │
+  └── scoring_config (konfigurasi penilaian lembaga)
+7. Alur Pengguna (User Flow)
+7.1 Flow Utama: Sesi Setoran (Ustadz)
+[1] Login sebagai Ustadz
+    │
+[2] Dashboard Ustadz → Klik &quot;Mulai Sesi Baru&quot;
+    │
+[3] Form Inisiasi Sesi:
+    - Pilih Santri (dari halaqah saya)
+    - Pilih Jenis Setoran (Baru / Murajaah)
+    - Pilih Surah → Ayat Mulai → Ayat Selesai
+    - [Konfirmasi]
+    │
+[4] Interactive Quran Reader tampil
+    - Teks Al-Qur'an dirender per kata (RTL)
+    - Panel kontrol: Skor Live (100), tombol Selesai, Batal
+    │
+[5] Santri mulai membaca → Saat ada kesalahan:
+    - Ustadz klik/tap kata yang salah
+    - Popup muncul: [Lahn Jali] [Lahn Khafi] [Tark] [Batal]
+    - Pilih kategori → Kata berubah warna → Skor dikurangi otomatis
+    │
+[6] (Opsional) Edit/Hapus bookmark yang salah klik
+    │
+[7] Santri selesai membaca → Ustadz klik &quot;Selesai&quot;
+    │
+[8] Konfirmasi &amp; Catatan:
+    - Tampil ringkasan: Total Jali/Khafi/Tark, Skor Akhir, Status
+    - Ustadz isi catatan tambahan (opsional)
+    - [Simpan Sesi]
+    │
+[9] Sistem menyimpan session_logs + error_bookmarks
+    Notifikasi dikirim ke Santri &amp; Orang Tua
+    │
+[10] Redirect ke halaman ringkasan sesi
+7.2 Flow: Santri Melihat Laporan
+[1] Login sebagai Santri
+    │
+[2] Dashboard: lihat ringkasan progres &amp; sesi terakhir
+    │
+[3] Menu &quot;Riwayat Setoran&quot; → Pilih sesi spesifik
+    │
+[4] Halaman Detail Sesi:
+    - Teks Al-Qur'an dengan highlight kesalahan
+    - Tabel daftar kesalahan per kata
+    - Skor breakdown
+    │
+[5] Menu &quot;Analisis Kesalahan&quot; → Pilih Surah
+    │
+[6] Heatmap Quran Error Map ditampilkan
+    - Kata-kata diwarnai sesuai frekuensi kesalahan
+    - Hover/tap: detail per kata
+7.3 Flow: Orang Tua Memantau Anak
+[1] Login sebagai Orang Tua
+    │
+[2] Dashboard: ringkasan anak (jika lebih dari satu, pilih anak)
+    │
+[3] Lihat sesi terbaru → baca detail atau heatmap
+    │
+[4] Terima notifikasi email/in-app setiap kali sesi selesai
+8. Persyaratan Teknis
+8.1 Stack Teknologi yang Direkomendasikan
+Layer
+Pilihan Utama
+Alternatif
+Backend API
+Node.js + Express.js
+Laravel (PHP), Python FastAPI
+Frontend
+React.js + TypeScript
+Vue.js 3
+Database
+PostgreSQL
+SQLite (dev/small scale)
+Quran Database
+Abdullah Ghanem Quran DB
+Quran.com API
+ORM
+Prisma (Node.js)
+Eloquent (Laravel)
+Auth
+JWT + Refresh Token
+Session-based
+Caching
+Redis
+In-memory (dev)
+File Storage
+MinIO / AWS S3
+Local storage (dev)
+Email
+SMTP via Nodemailer
+SendGrid, Mailgun
+8.2 Rendering Teks Al-Qur'an
+Font:
+ KFGQPC Uthmanic Script HAFS (atau IndoPak)
+Font harus di-self-host untuk konsistensi rendering dan offline capability.
+Word Segmentation:
+ Setiap kata dirender dalam elemen 
+&lt;span data-word-index=&quot;N&quot; data-ayah-id=&quot;M&quot;&gt;
+ terpisah.
+RTL Support:
+ Gunakan CSS 
+direction: rtl
+ dan 
+unicode-bidi: embed
+.
+Tashkeel (harakat):
+ Pastikan harakat tampil lengkap dan tidak terpotong saat line break.
+8.3 API Design (RESTful)
+Auth:
+POST /api/auth/login
+POST /api/auth/logout
+POST /api/auth/refresh-token
+Sessions:
+POST /api/sessions
+ — Buat sesi baru
+GET /api/sessions?student_id=&amp;page=
+ — Daftar sesi
+GET /api/sessions/:id
+ — Detail sesi
+PATCH /api/sessions/:id/finish
+ — Selesaikan sesi
+DELETE /api/sessions/:id
+ — Batalkan sesi
+Bookmarks:
+POST /api/sessions/:id/bookmarks
+ — Tambah bookmark
+DELETE /api/sessions/:id/bookmarks/:bookmarkId
+ — Hapus bookmark
+PATCH /api/sessions/:id/bookmarks/:bookmarkId
+ — Edit kategori
+Quran:
+GET /api/quran/surahs
+ — Daftar surah
+GET /api/quran/surahs/:surahId/ayahs?from=&amp;to=
+ — Teks per ayat (termasuk word array)
+Reports:
+GET /api/students/:id/heatmap?surah_id=
+ — Data heatmap per santri per surah
+GET /api/students/:id/progress
+ — Grafik progres
+GET /api/admin/reports/summary
+ — Laporan agregat lembaga
+8.4 Struktur Response Quran API
+{
+  &quot;surah_id&quot;: 67,
+  &quot;
+surah
+_
+name
+_
+ar
+&quot;: &quot;
+الملك
+&quot;,
+  &quot;surah_name_id&quot;: &quot;Al-Mulk&quot;,
+  &quot;ayahs&quot;: [
+    {
+      &quot;ayah_id&quot;: 1,
+      &quot;ayah_number&quot;: 1,
+      &quot;
+text
+_
+full
+&quot;: &quot;
+ت
+َ
+ب
+َ
+ار
+َ
+ك
+َ 
+ال
+َّ
+ذ
+ِ
+ي
+ب
+ِ
+ي
+َ
+د
+ِ
+ه
+ِ 
+ال
+ْ
+م
+ُ
+ل
+ْ
+ك
+ُ 
+و
+َ
+ه
+ُ
+و
+َ 
+ع
+َ
+ل
+َ
+ى
+ٰ 
+ك
+ُ
+ل
+ِّ 
+ش
+َ
+ي
+ْ
+ء
+ٍ 
+ق
+َ
+د
+ِ
+ير
+ٌ&quot;,
+      &quot;words&quot;: [
+        { &quot;
+index
+&quot;: 0, &quot;
+text
+&quot;: &quot;
+ت
+َ
+ب
+َ
+ار
+َ
+ك
+َ&quot; },
+        { &quot;
+index
+&quot;: 1, &quot;
+text
+&quot;: &quot;
+ال
+َّ
+ذ
+ِ
+ي
+&quot; },
+        { &quot;
+index
+&quot;: 2, &quot;
+text
+&quot;: &quot;
+ب
+ِ
+ي
+َ
+د
+ِ
+ه
+ِ&quot; },
+        { &quot;
+index
+&quot;: 3, &quot;
+text
+&quot;: &quot;
+ال
+ْ
+م
+ُ
+ل
+ْ
+ك
+ُ&quot; },
+        { &quot;
+index
+&quot;: 4, &quot;
+text
+&quot;: &quot;
+و
+َ
+ه
+ُ
+و
+َ&quot; },
+        { &quot;
+index
+&quot;: 5, &quot;
+text
+&quot;: &quot;
+ع
+َ
+ل
+َ
+ى
+ٰ&quot; },
+        { &quot;
+index
+&quot;: 6, &quot;
+text
+&quot;: &quot;
+ك
+ُ
+ل
+ِّ&quot; },
+        { &quot;
+index
+&quot;: 7, &quot;
+text
+&quot;: &quot;
+ش
+َ
+ي
+ْ
+ء
+ٍ&quot; },
+        { &quot;
+index
+&quot;: 8, &quot;
+text
+&quot;: &quot;
+ق
+َ
+د
+ِ
+ير
+ٌ&quot; }
+      ]
+    }
+  ]
+}
+9. Persyaratan Non-Fungsional
+9.1 Performa
+Metrik
+Target
+Waktu load halaman utama
+&lt; 2 detik (3G)
+Waktu render teks Al-Qur'an (10 ayat)
+&lt; 1.5 detik
+Response API endpoint utama
+&lt; 500ms
+Waktu simpan sesi (submit)
+&lt; 3 detik
+Concurrent users yang didukung
+≥ 100 sesi aktif bersamaan
+9.2 Keamanan
+Semua koneksi menggunakan HTTPS (TLS 1.2+).
+Password di-hash dengan bcrypt (cost factor ≥ 12).
+JWT Access Token masa aktif 15 menit; Refresh Token 7 hari.
+Validasi input di sisi server (tidak hanya client-side).
+Authorization: setiap endpoint memvalidasi hak akses role pengguna.
+Rate limiting pada endpoint login: max 5 percobaan gagal per menit.
+Data orang tua hanya bisa melihat data anak yang terhubung (row-level security).
+9.3 Keandalan &amp; Ketersediaan
+Target uptime: 99.5% per bulan (downtime maksimal ~3.6 jam/bulan).
+Database backup otomatis harian.
+Graceful error handling: jika API gagal saat sesi aktif, state bookmark tersimpan di localStorage sebagai fallback sementara.
+9.4 Aksesibilitas &amp; Kompatibilitas
+Browser yang didukung: Chrome 90+, Firefox 88+, Safari 14+, Edge 90+.
+Responsive design: desktop, tablet, dan mobile (minimal 375px lebar layar).
+Sesi setoran dioptimalkan untuk penggunaan di tablet (ustadz umumnya menggunakan tablet saat mengajar).
+Mendukung mode offline parsial: teks Al-Qur'an ter-cache untuk surah yang pernah diakses (via Service Worker).
+10. Kriteria Penerimaan (Acceptance Criteria)
+Fitur Utama
+ID
+User Story
+Kriteria Penerimaan
+AC-01
+Sebagai Ustadz, saya ingin memulai sesi setoran dengan memilih santri dan rentang ayat
+Form inisiasi berhasil diisi dan Quran Reader tampil dalam &lt; 2 detik
+AC-02
+Sebagai Ustadz, saya ingin menandai kata yang salah tanpa mengetik manual
+Klik kata → popup → pilih kategori → kata berubah warna dalam &lt; 1 detik
+AC-03
+Sebagai Ustadz, saya ingin skor berubah real-time saat kesalahan ditandai
+Skor diperbarui instan setelah kategori dipilih, tanpa reload halaman
+AC-04
+Sebagai Ustadz, saya ingin membatalkan bookmark yang salah
+Klik kata yang sudah ditandai → pilih &quot;Hapus&quot; → skor dikembalikan
+AC-05
+Sebagai sistem, nilai harus dihitung tanpa error pembulatan
+Kalkulasi menggunakan integer arithmetic; tidak ada floating-point error
+AC-06
+Sebagai Santri, saya ingin melihat riwayat semua setoran saya
+Halaman log menampilkan semua sesi dengan filter dan paginasi
+AC-07
+Sebagai Santri, saya ingin melihat kata mana yang sering saya salah
+Heatmap menampilkan kata dengan warna sesuai frekuensi kesalahan
+AC-08
+Sebagai Orang Tua, saya ingin menerima notifikasi saat anak saya selesai setoran
+Notifikasi email terkirim dalam &lt; 5 menit setelah sesi selesai
+AC-09
+Sebagai Admin, saya ingin mengubah parameter penilaian
+Perubahan config tersimpan; sesi baru menggunakan config baru; sesi lama tidak terpengaruh
+AC-10
+Sistem menyimpan data setoran secara persisten
+Data dapat diambil kembali setelah logout/login ulang
+11. Roadmap &amp; Prioritas Fitur
+Phase 1 — MVP (Target: 2 Bulan)
+Prioritas Tinggi (Must Have):
+✅ Login multi-role
+✅ Manajemen halaqah dan santri (Admin)
+✅ Sesi setoran dengan Interactive Quran Reader
+✅ Word-level bookmarking (Jali/Khafi/Tark)
+✅ Scoring engine + status lulus/mengulang
+✅ Riwayat sesi (log) untuk santri
+✅ Detail sesi dengan replay teks + tabel kesalahan
+Phase 2 — Enhanced Features (Target: Bulan 3–4)
+Prioritas Sedang (Should Have):
+🔄 Heatmap kesalahan per santri per surah
+🔄 Dashboard orang tua (read-only)
+🔄 Notifikasi email post-sesi
+🔄 Laporan agregat admin (PDF/Excel export)
+🔄 Konfigurasi penilaian oleh admin
+🔄 Toggle overlay riwayat kesalahan di Quran Reader
+Phase 3 — Advanced (Target: Bulan 5–6)
+Prioritas Rendah (Nice to Have):
+⏳ Import data santri massal via CSV
+⏳ Grafik progres santri (line chart, bar chart)
+⏳ Top 10 Most Missed Words analytics
+⏳ Gamifikasi: streak setoran, badge pencapaian
+⏳ Mode offline parsial (Service Worker caching)
+Phase 4 — Future (v2.0)
+🔮 Aplikasi mobile native (React Native)
+🔮 Rekaman audio sesi
+🔮 AI-assisted error detection (speech recognition)
+🔮 Multi-tenant (satu sistem untuk banyak lembaga)
+12. Asumsi &amp; Batasan
+12.1 Asumsi
+Sumber data Al-Qur'an menggunakan 
+Abdullah Ghanem Quran DB
+ yang sudah tersegmentasi per kata dengan 
+word_index
+ konsisten.
+Proses setoran dilakukan secara 
+tatap muka
+ (Ustadz dan Santri berada di lokasi sama); sistem tidak dirancang untuk setoran jarak jauh di v1.0.
+Satu sesi hanya mencakup 
+satu surah
+ (tidak lintas surah).
+Setiap ustadz hanya dapat mengelola sesi untuk santri di 
+halaqah miliknya
+.
+Lembaga menggunakan satu konfigurasi penilaian yang sama untuk semua santri.
+12.2 Batasan
+Tidak ada fitur rekaman audio di v1.0.
+Sistem tidak mendeteksi kesalahan secara otomatis; deteksi sepenuhnya dilakukan oleh ustadz.
+Aplikasi mobile native tidak tersedia di v1.0; hanya web responsive.
+Tidak ada integrasi eksternal (keuangan, absensi) di v1.0.
+13. Glosarium
+Istilah
+Definisi
+Talaqqi
+Proses setoran hafalan Al-Qur'an secara langsung dari santri kepada ustadz
+Setoran
+Satu sesi talaqqi yang mencakup rentang ayat tertentu
+Murajaah
+Mengulang hafalan yang sudah pernah disetorkan sebelumnya
+Lahn Jali
+Kesalahan fatal yang mengubah makna bacaan; kesalahan dalam makhraj atau harakat yang jelas
+Lahn Khafi
+Kesalahan tajwid yang halus; tidak mengubah makna tapi tidak sempurna secara ilmu tajwid
+Tark
+Berhenti atau lupa dalam proses membaca
+Halaqah
+Kelompok santri yang belajar bersama di bawah bimbingan satu ustadz
+Santri
+Peserta didik yang mengikuti program tahfidz
+Ustadz/Musyrif
+Pengajar atau pembimbing hafalan
+Heatmap
+Visualisasi data menggunakan gradasi warna untuk menunjukkan intensitas suatu nilai
+word_index
+Indeks urutan kata dalam sebuah ayat (dimulai dari 0)
+Abdullah Ghanem DB
+Database Al-Qur'an open-source yang menyediakan data teks per kata dengan metadata lengkap
+Snapshot
+Salinan data pada satu titik waktu tertentu, digunakan untuk memastikan data historis tidak berubah jika konfigurasi diperbarui
+Dokumen ini bersifat living document dan akan diperbarui seiring perkembangan produk. Setiap perubahan signifikan dicatat dalam versi dokumen.
+Versi 2.0 | SITA — Sistem Digital Setoran Tahfidz
+
