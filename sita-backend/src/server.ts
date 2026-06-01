@@ -4,12 +4,12 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import { PrismaClient } from '@prisma/client';
 import { authenticateJWT, authorizeRoles, AuthRequest } from './middleware/auth';
-import { login, getProfile } from './controllers/authController';
+import { login, getProfile, changePassword } from './controllers/authController';
 import { getSurahs, getAyahs } from './controllers/quranController';
 import { finishSession, getSessionDetail, listSessions } from './controllers/sessionController';
 import { getHeatmap, getProgress } from './controllers/reportController';
 import { getMessages, sendMessage } from './controllers/messagesController';
-import { getConfig, updateConfig, getUsers, createUser, updateUser, deleteUser, getHalaqahs, createHalaqah, assignStudentToHalaqah, removeStudentFromHalaqah, linkParentStudent, getLinkedParents, createUsersBulk, getInstitutionSummary, getWhiteLabel, updateWhiteLabel, getLevels, createLevel, updateLevel, deleteLevel, assignStudentLevel } from './controllers/adminController';
+import { getConfig, updateConfig, getUsers, createUser, updateUser, deleteUser, resetUserPassword, getHalaqahs, createHalaqah, assignStudentToHalaqah, removeStudentFromHalaqah, linkParentStudent, getLinkedParents, createUsersBulk, getInstitutionSummary, getWhiteLabel, updateWhiteLabel, getLevels, createLevel, updateLevel, deleteLevel, assignStudentLevel } from './controllers/adminController';
 import { requestJuziyahExam, getPendingJuziyahExams, submitJuziyahExamResult, getCertificates, getCoordinatorSummary } from './controllers/juziyahController';
 import { getCustomFieldsByRole, createCustomField, updateCustomField, deleteCustomField } from './controllers/customFieldController';
 import {
@@ -66,6 +66,7 @@ app.get('/api/whitelabel', getWhiteLabel);
 
 // Authenticated Routes
 app.get('/api/auth/profile', authenticateJWT, getProfile);
+app.post('/api/auth/change-password', authenticateJWT, changePassword);
 app.get('/api/config', authenticateJWT, getConfig);
 
 // Quran routes
@@ -224,6 +225,7 @@ app.get('/api/admin/users', authenticateJWT, authorizeRoles(['admin']), getUsers
 app.post('/api/admin/users', authenticateJWT, authorizeRoles(['admin']), createUser);
 app.put('/api/admin/users/:id', authenticateJWT, authorizeRoles(['admin']), updateUser);
 app.delete('/api/admin/users/:id', authenticateJWT, authorizeRoles(['admin']), deleteUser);
+app.post('/api/admin/users/:id/reset-password', authenticateJWT, authorizeRoles(['admin']), resetUserPassword);
 app.post('/api/admin/users/bulk', authenticateJWT, authorizeRoles(['admin']), createUsersBulk);
 
 // Admin Custom Fields routes

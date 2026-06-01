@@ -268,7 +268,32 @@ export const deleteUser = async (req: AuthRequest, res: Response) => {
       return res.status(404).json({ error: 'User tidak ditemukan' });
     }
 
-    // Clean up relations
+    // Clean up relations manually for SQLite to avoid foreign key violations
+    
+    // Find halaqahs owned by this user (if ustadz)
+    const halaqahs = await prisma.halaqah.findMany({
+      where: { ustadzId: userId },
+      select: { id: true },
+    });
+    const halaqahIds = halaqahs.map(h => h.id);
+
+    // 1. Delete session logs (along with their cascade error bookmarks)
+    await prisma.sessionLog.deleteMany({
+      where: {
+        OR: [
+          { studentId: userId },
+          { ustadzId: userId },
+          { halaqahId: { in: halaqahIds } }
+        ]
+      }
+    });
+
+    // 2. Delete Halaqahs where user is Ustadz
+    await prisma.halaqah.deleteMany({
+      where: { ustadzId: userId }
+    });
+
+    // 3. Delete StudentParent links
     await prisma.studentParent.deleteMany({
       where: {
         OR: [
@@ -278,14 +303,75 @@ export const deleteUser = async (req: AuthRequest, res: Response) => {
       }
     });
 
+    // 4. Delete HalaqahStudent links
     await prisma.halaqahStudent.deleteMany({
-      where: { studentId: userId }
+      where: {
+        OR: [
+          { studentId: userId }
+        ]
+      }
     });
 
+    // 5. Delete ClassroomStudent links
+    await prisma.classroomStudent.deleteMany({
+      where: {
+        OR: [
+          { studentId: userId }
+        ]
+      }
+    });
+
+    // 6. Delete SubClassroomStudent links
+    await prisma.subClassroomStudent.deleteMany({
+      where: {
+        OR: [
+          { studentId: userId }
+        ]
+      }
+    });
+
+    // 7. Delete Custom Field Values
     await prisma.customFieldValue.deleteMany({
       where: { userId }
     });
 
+    // 8. Delete Notifications
+    await prisma.notification.deleteMany({
+      where: { recipientId: userId }
+    });
+
+    // 9. Delete HomeMurajaahAssignment
+    await prisma.homeMurajaahAssignment.deleteMany({
+      where: {
+        OR: [
+          { studentId: userId },
+          { ustadzId: userId }
+        ]
+      }
+    });
+
+    // 10. Delete Messages
+    await prisma.message.deleteMany({
+      where: {
+        OR: [
+          { senderId: userId },
+          { receiverId: userId },
+          { studentId: userId }
+        ]
+      }
+    });
+
+    // 11. Delete Juziyah Exams (certificates are deleted cascade)
+    await prisma.juziyahExam.deleteMany({
+      where: {
+        OR: [
+          { studentId: userId },
+          { ustadzId: userId }
+        ]
+      }
+    });
+
+    // 12. Delete actual User
     await prisma.user.delete({
       where: { id: userId },
     });
@@ -293,6 +379,43 @@ export const deleteUser = async (req: AuthRequest, res: Response) => {
     return res.json({ success: true });
   } catch (error) {
     console.error('Error deleting user:', error);
+    return res.status(500).json({ error: 'Terjadi kesalahan pada server' });
+  }
+};
+
+export const resetUserPassword = async (req: AuthRequest, res: Response) => {
+  const { id } = req.params;
+  const { password } = req.body;
+
+  try {
+    const userId = parseInt(id);
+    if (isNaN(userId)) {
+      return res.status(400).json({ error: 'ID user tidak valid' });
+    }
+
+    if (!password || password.trim().length < 6) {
+      return res.status(400).json({ error: 'Password minimal 6 karakter' });
+    }
+
+    const existingUser = await prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!existingUser) {
+      return res.status(404).json({ error: 'User tidak ditemukan' });
+    }
+
+    const salt = bcrypt.genSaltSync(10);
+    const passwordHash = bcrypt.hashSync(password, salt);
+
+    await prisma.user.update({
+      where: { id: userId },
+      data: { passwordHash },
+    });
+
+    return res.json({ success: true, message: 'Password berhasil di-reset' });
+  } catch (error) {
+    console.error('Error resetting password:', error);
     return res.status(500).json({ error: 'Terjadi kesalahan pada server' });
   }
 };

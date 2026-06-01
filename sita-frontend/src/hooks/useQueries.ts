@@ -695,4 +695,18 @@ export function useDeleteSitaDocumentation() {
   });
 }
 
+export function useAdminResetUserPassword() {
+  return useMutation({
+    mutationFn: ({ userId, password }: { userId: number; password: string }) =>
+      api.adminResetUserPassword(userId, password)
+  });
+}
+
+export function useChangePassword() {
+  return useMutation({
+    mutationFn: ({ currentPassword, newPassword }: { currentPassword: string; newPassword: string }) =>
+      api.changePassword(currentPassword, newPassword)
+  });
+}
+
 

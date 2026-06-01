@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { api } from '../lib/api';
 import { cn } from '../lib/utils';
-import { LogOut, Settings, Users, Home, Plus, Shield, LayoutDashboard, BookOpen, Menu, X, ArrowRight, Award, GraduationCap, ChevronRight, ChevronLeft, ChevronDown, Trash2, Edit2, Wrench, Database, Calendar, School, Camera } from 'lucide-react';
+import { LogOut, Settings, Users, Home, Plus, Shield, LayoutDashboard, BookOpen, Menu, X, ArrowRight, Award, GraduationCap, ChevronRight, ChevronLeft, ChevronDown, Trash2, Edit2, Wrench, Database, Calendar, School, Camera, Key } from 'lucide-react';
 import { NotificationCenter } from '../components/NotificationCenter';
 import { useBranding } from '../context/BrandingContext';
 import {
@@ -25,7 +25,7 @@ export const AdminDashboard: React.FC = () => {
 
   const { appName, appLogo, loginLogo, footerText, refreshBranding, setPageTitle } = useBranding();
 
-  const [activeTab, setActiveTab] = useState<'summary' | 'config' | 'users' | 'halaqah' | 'whitelabel' | 'levels' | 'academic' | 'documentation'>('summary');
+  const [activeTab, setActiveTab] = useState<'summary' | 'config' | 'users' | 'halaqah' | 'whitelabel' | 'levels' | 'academic' | 'documentation' | 'password'>('summary');
   const [masterDataRoleTab, setMasterDataRoleTab] = useState<'ustadz' | 'student' | 'parent'>('student');
   // ═══ TanStack Query — data fetching with caching ═══
   const { data: summaryStats, isLoading: isLoadingSummary } = useAdminSummary();
@@ -1109,6 +1109,21 @@ export const AdminDashboard: React.FC = () => {
               >
                 <Camera className="w-4 h-4 flex-shrink-0" />
                 {!isSidebarCollapsed && <span className="animate-fadeIn">Dokumentasi & Kegiatan</span>}
+              </button>
+
+              <button
+                onClick={() => { setActiveTab('password'); setIsMobileMenuOpen(false); }}
+                className={cn(
+                  "w-full flex items-center rounded-xl font-bold text-sm transition-all duration-200 text-left",
+                  isSidebarCollapsed ? "justify-center px-0 py-3" : "justify-start space-x-3 px-4 py-3",
+                  activeTab === 'password'
+                    ? "bg-white text-emerald-950 shadow-md"
+                    : "text-emerald-100 hover:bg-emerald-800/40 hover:text-white"
+                )}
+                title={isSidebarCollapsed ? "Ubah Password" : undefined}
+              >
+                <Key className="w-4 h-4 flex-shrink-0" />
+                {!isSidebarCollapsed && <span className="animate-fadeIn">Ubah Password</span>}
               </button>
             </nav>
           </div>
@@ -2538,6 +2553,76 @@ export const AdminDashboard: React.FC = () => {
               </div>
             </div>
           )}
+
+          {activeTab === 'password' && (
+            <div className="max-w-md mx-auto bg-white rounded-3xl p-8 border border-gray-100 shadow-sm space-y-6 text-left animate-fadeIn">
+              <div>
+                <h3 className="text-xl font-extrabold text-gray-900">Ubah Password Anda</h3>
+                <p className="text-xs text-gray-400 mt-1">Ubah password login Anda saat ini secara mandiri.</p>
+              </div>
+
+              <form
+                onSubmit={async (e) => {
+                  e.preventDefault();
+                  const currentPw = (e.target as any).currentPassword.value;
+                  const newPw = (e.target as any).newPassword.value;
+                  const confirmPw = (e.target as any).confirmPassword.value;
+
+                  if (newPw !== confirmPw) {
+                    alert('Konfirmasi password baru tidak sesuai!');
+                    return;
+                  }
+                  if (newPw.length < 6) {
+                    alert('Password baru minimal 6 karakter!');
+                    return;
+                  }
+
+                  try {
+                    await api.changePassword(currentPw, newPw);
+                    alert('Password Anda berhasil diubah!');
+                    (e.target as HTMLFormElement).reset();
+                  } catch (err: any) {
+                    alert('Gagal mengubah password: ' + err.message);
+                  }
+                }}
+                className="space-y-4"
+              >
+                <div>
+                  <label className="block text-xs font-black text-gray-500 uppercase tracking-wider mb-1.5">Password Saat Ini</label>
+                  <input
+                    type="password"
+                    name="currentPassword"
+                    required
+                    className="w-full bg-gray-50 border border-gray-200 focus:border-emerald-500 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 font-medium transition-all text-gray-800"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-black text-gray-500 uppercase tracking-wider mb-1.5">Password Baru</label>
+                  <input
+                    type="password"
+                    name="newPassword"
+                    required
+                    className="w-full bg-gray-50 border border-gray-200 focus:border-emerald-500 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 font-medium transition-all text-gray-800"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-black text-gray-500 uppercase tracking-wider mb-1.5">Konfirmasi Password Baru</label>
+                  <input
+                    type="password"
+                    name="confirmPassword"
+                    required
+                    className="w-full bg-gray-50 border border-gray-200 focus:border-emerald-500 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 font-medium transition-all text-gray-800"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-2xl shadow-md hover:shadow-lg transition-all duration-200 cursor-pointer text-sm"
+                >
+                  Ubah Password
+                </button>
+              </form>
+            </div>
+          )}
           </div>
       </main>
 
@@ -3172,6 +3257,41 @@ export const AdminDashboard: React.FC = () => {
                   </div>
                 </div>
               )}
+
+              <div className="border-t border-gray-100 pt-4 space-y-2">
+                <label className="block text-sm font-semibold text-gray-700 text-left">Reset Password Pengguna</label>
+                <div className="flex gap-2">
+                  <input
+                    type="password"
+                    placeholder="Masukkan password baru..."
+                    id="admin-reset-pw-input"
+                    className="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 text-gray-800"
+                  />
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      const input = document.getElementById('admin-reset-pw-input') as HTMLInputElement;
+                      const newPw = input?.value;
+                      if (!newPw || newPw.trim().length < 6) {
+                        alert('Password minimal 6 karakter!');
+                        return;
+                      }
+                      if (confirm(`Apakah Anda yakin ingin mereset password untuk ${editingUser.name}?`)) {
+                        try {
+                          await api.adminResetUserPassword(editingUser.id, newPw);
+                          alert('Password berhasil di-reset!');
+                          if (input) input.value = '';
+                        } catch (err: any) {
+                          alert('Gagal mereset password: ' + err.message);
+                        }
+                      }
+                    }}
+                    className="bg-amber-500 hover:bg-amber-600 text-white font-bold px-4 py-2 rounded-xl text-sm transition-all shadow-sm"
+                  >
+                    Reset
+                  </button>
+                </div>
+              </div>
 
               <div className="flex gap-3 pt-4 border-t border-gray-100">
                 <button type="submit" disabled={editUserSaving}

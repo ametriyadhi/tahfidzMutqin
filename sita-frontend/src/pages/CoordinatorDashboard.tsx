@@ -6,7 +6,7 @@ import { cn } from '../lib/utils';
 import {
   LayoutDashboard, BookOpen, FileText, Trophy, AlertCircle, Award, LogOut,
   Users, CheckCircle2, XCircle, Clock, ChevronRight, ChevronLeft, Search, Printer,
-  Sparkles, Calendar, BookMarked, MessageSquare, ArrowLeft, Send, PlayCircle, Star, X, Menu, Zap
+  Sparkles, Calendar, BookMarked, MessageSquare, ArrowLeft, Send, PlayCircle, Star, X, Menu, Zap, Key
 } from 'lucide-react';
 import { NotificationCenter } from '../components/NotificationCenter';
 import { useBranding } from '../context/BrandingContext';
@@ -46,7 +46,7 @@ export const CoordinatorDashboard = () => {
   const { appName, appLogo, footerText } = useBranding();
   const user = api.getUser();
 
-  const [activeTab, setActiveTab] = useState<'overview' | 'halaqah' | 'rekap_laporan' | 'rekap_pencapaian' | 'pending_ujian' | 'sertifikat'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'halaqah' | 'rekap_laporan' | 'rekap_pencapaian' | 'pending_ujian' | 'sertifikat' | 'password'>('overview');
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -436,6 +436,21 @@ export const CoordinatorDashboard = () => {
               <Award className="w-4 h-4" />
               {!isSidebarCollapsed && <span className="animate-fadeIn">Sertifikat Juziyah</span>}
             </button>
+
+            <button
+              onClick={() => { setActiveTab('password'); handleCancelExam(); setIsMobileMenuOpen(false); }}
+              className={cn(
+                "w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200",
+                isSidebarCollapsed ? "justify-center" : "justify-start",
+                activeTab === 'password'
+                  ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/20"
+                  : "text-slate-400 hover:text-slate-200 hover:bg-slate-900/60"
+              )}
+              title={isSidebarCollapsed ? "Ubah Password" : undefined}
+            >
+              <Key className="w-4 h-4" />
+              {!isSidebarCollapsed && <span className="animate-fadeIn">Ubah Password</span>}
+            </button>
           </nav>
         </div>
 
@@ -792,6 +807,7 @@ export const CoordinatorDashboard = () => {
                   {activeTab === 'rekap_pencapaian' && 'Rekapitulasi Kelulusan & Pencapaian'}
                   {activeTab === 'pending_ujian' && 'Antrean Pengajuan Ujian Juziyah'}
                   {activeTab === 'sertifikat' && 'Galeri Penerbitan Sertifikat Kelulusan'}
+                  {activeTab === 'password' && 'Ubah Password Mandiri'}
                 </h2>
                 <p className="text-slate-400 text-sm mt-0.5">
                   {activeTab === 'overview' && 'Ringkasan monitor seluruh aktivitas kelompok tahfidz & pengajuan ujian.'}
@@ -800,6 +816,7 @@ export const CoordinatorDashboard = () => {
                   {activeTab === 'rekap_pencapaian' && 'Ringkasan tingkat kelulusan, juz tuntas, dan skor rata-rata santri.'}
                   {activeTab === 'pending_ujian' && 'Daftar antrean ujian hafalan juziyah yang diajukan oleh para ustadz.'}
                   {activeTab === 'sertifikat' && 'Daftar sertifikat kelulusan formal berornamen emas digital yang telah diterbitkan.'}
+                  {activeTab === 'password' && 'Ubah password login Anda saat ini secara mandiri.'}
                 </p>
               </div>
               <div className="flex items-center gap-3">
@@ -1301,32 +1318,22 @@ export const CoordinatorDashboard = () => {
                       <div key={cert.id} className="bg-gradient-to-tr from-slate-950 to-slate-900 border border-[#d4af37]/20 p-5 rounded-3xl hover:border-[#d4af37]/40 transition-all flex flex-col justify-between gap-5 relative group overflow-hidden">
                         
                         {/* Golden corner visual ornament */}
-                        <div className="absolute top-0 right-0 w-16 h-16 bg-[#d4af37]/5 border-b border-l border-[#d4af37]/10 rounded-bl-3xl flex items-center justify-center">
-                          <Award className="w-5 h-5 text-[#d4af37]/40" />
-                        </div>
-
-                        <div className="space-y-4">
-                          <div>
-                            <span className="text-[10px] text-[#d4af37] font-extrabold uppercase tracking-widest block">Sertifikat Kelulusan</span>
-                            <h4 className="font-extrabold text-sm text-slate-100 mt-1">{cert.exam.student.name}</h4>
-                            <p className="text-[10px] text-slate-400 mt-0.5">NIS: {cert.exam.student.nis || '-'}</p>
+                        <div className="absolute -top-6 -right-6 w-12 h-12 border-b border-l border-[#d4af37]/15 rounded-bl-full bg-[#d4af37]/5"></div>
+                        
+                        <div className="space-y-3">
+                          <div className="flex items-center justify-between">
+                            <span className="text-[9px] font-black uppercase bg-[#d4af37]/15 border border-[#d4af37]/30 px-2 py-0.5 rounded-full text-[#d4af37] w-fit shadow-xs">
+                              JUZ {cert.exam.juzId}
+                            </span>
+                            <span className="text-[10px] text-slate-500 font-semibold">{new Date(cert.issuedAt).toLocaleDateString('id-ID', { year: 'numeric', month: 'short', day: 'numeric' })}</span>
                           </div>
-
-                          <div className="h-[1px] bg-slate-800/80"></div>
-
-                          <div className="space-y-2 text-xs">
-                            <div className="flex justify-between">
-                              <span className="text-slate-400">Juz Kelulusan:</span>
-                              <span className="font-extrabold text-amber-300">Juz {cert.exam.juzId}</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-slate-400">Nilai Ujian:</span>
-                              <span className="font-extrabold text-slate-200">{cert.exam.score}</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-slate-400">Nomor Sertifikat:</span>
-                              <span className="font-mono text-[10px] text-slate-300">{cert.certificateNo}</span>
-                            </div>
+                          
+                          <div className="text-left">
+                            <h4 className="font-extrabold text-slate-200 text-sm tracking-wide leading-tight truncate" title={cert.exam.student.name}>
+                              {cert.exam.student.name}
+                            </h4>
+                            <p className="text-xs text-slate-400 mt-1 font-medium">Level: {cert.exam.student.level?.name || 'Reguler'}</p>
+                            <p className="text-[10px] text-slate-500 mt-0.5 font-bold">Skor Ujian: {cert.exam.score}</p>
                           </div>
                         </div>
 
@@ -1340,6 +1347,76 @@ export const CoordinatorDashboard = () => {
                     ))}
                   </div>
                 )}
+              </div>
+            )}
+
+            {activeTab === 'password' && (
+              <div className="max-w-md mx-auto bg-slate-950 p-8 border border-slate-800 rounded-3xl space-y-6 text-left animate-fadeIn">
+                <div>
+                  <h3 className="text-xl font-extrabold text-slate-100">Ubah Password Anda</h3>
+                  <p className="text-xs text-slate-400 mt-1">Ubah password login Anda saat ini secara mandiri.</p>
+                </div>
+
+                <form
+                  onSubmit={async (e) => {
+                    e.preventDefault();
+                    const currentPw = (e.target as any).currentPassword.value;
+                    const newPw = (e.target as any).newPassword.value;
+                    const confirmPw = (e.target as any).confirmPassword.value;
+
+                    if (newPw !== confirmPw) {
+                      alert('Konfirmasi password baru tidak sesuai!');
+                      return;
+                    }
+                    if (newPw.length < 6) {
+                      alert('Password baru minimal 6 karakter!');
+                      return;
+                    }
+
+                    try {
+                      await api.changePassword(currentPw, newPw);
+                      alert('Password Anda berhasil diubah!');
+                      (e.target as HTMLFormElement).reset();
+                    } catch (err: any) {
+                      alert('Gagal mengubah password: ' + err.message);
+                    }
+                  }}
+                  className="space-y-4"
+                >
+                  <div>
+                    <label className="block text-xs font-black text-slate-400 uppercase tracking-wider mb-1.5">Password Saat Ini</label>
+                    <input
+                      type="password"
+                      name="currentPassword"
+                      required
+                      className="w-full bg-slate-900 border border-slate-800 focus:border-indigo-500 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 font-medium transition-all text-slate-100"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-black text-slate-400 uppercase tracking-wider mb-1.5">Password Baru</label>
+                    <input
+                      type="password"
+                      name="newPassword"
+                      required
+                      className="w-full bg-slate-900 border border-slate-800 focus:border-indigo-500 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 font-medium transition-all text-slate-100"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-black text-slate-400 uppercase tracking-wider mb-1.5">Konfirmasi Password Baru</label>
+                    <input
+                      type="password"
+                      name="confirmPassword"
+                      required
+                      className="w-full bg-slate-900 border border-slate-800 focus:border-indigo-500 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 font-medium transition-all text-slate-100"
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3.5 rounded-2xl shadow-md hover:shadow-lg transition-all duration-200 cursor-pointer text-sm"
+                  >
+                    Ubah Password
+                  </button>
+                </form>
               </div>
             )}
           </div>

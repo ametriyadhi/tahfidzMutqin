@@ -520,6 +520,20 @@ class ApiClient {
       method: 'DELETE'
     });
   }
+
+  adminResetUserPassword(userId: number, password: string) {
+    return this.request(`/admin/users/${userId}/reset-password`, {
+      method: 'POST',
+      body: JSON.stringify({ password })
+    });
+  }
+
+  changePassword(currentPassword: string, newPassword: string) {
+    return this.request('/auth/change-password', {
+      method: 'POST',
+      body: JSON.stringify({ currentPassword, newPassword })
+    });
+  }
 }
 
 export const api = new ApiClient();

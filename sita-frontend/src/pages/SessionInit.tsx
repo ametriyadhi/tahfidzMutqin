@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../lib/api';
 import { cn } from '../lib/utils';
-import { Play, LogOut, BookOpen, AlertCircle, Save, XCircle, Menu, X, LayoutDashboard, Users, ChevronRight, ChevronLeft, History, Award, TrendingUp, Activity, Calendar, Search, BookMarked, Zap, MessageSquare, Send, Clock, CheckCircle2 } from 'lucide-react';
+import { Play, LogOut, BookOpen, AlertCircle, Save, XCircle, Menu, X, LayoutDashboard, Users, ChevronRight, ChevronLeft, History, Award, TrendingUp, Activity, Calendar, Search, BookMarked, Zap, MessageSquare, Send, Clock, CheckCircle2, Key } from 'lucide-react';
 import { QuranReader } from '../components/QuranReader';
 import { NotificationCenter } from '../components/NotificationCenter';
 import { QURAN_PAGE_MAPPINGS, getPageForAyah } from '../lib/pageMappings';
@@ -154,7 +154,7 @@ export const SessionInit: React.FC = () => {
   const { appName, appLogo, setPageTitle } = useBranding();
   
   // UI Tabs
-  const [activeTab, setActiveTab] = useState<'analytics' | 'talaqqi' | 'history' | 'tasmi' | 'ledger' | 'komunikasi' | 'home_murajaah'>('analytics');
+  const [activeTab, setActiveTab] = useState<'analytics' | 'talaqqi' | 'history' | 'tasmi' | 'ledger' | 'komunikasi' | 'home_murajaah' | 'password'>('analytics');
 
   useEffect(() => {
     setPageTitle(
@@ -165,6 +165,7 @@ export const SessionInit: React.FC = () => {
         : activeTab === 'tasmi' ? "Mutaba'ah Tasmi'"
         : activeTab === 'komunikasi' ? "Buku Penghubung"
         : activeTab === 'home_murajaah' ? "Muraja'ah di Rumah"
+        : activeTab === 'password' ? 'Ubah Password'
         : 'Ledger Nilai'
     );
   }, [activeTab, appName]);
@@ -1139,6 +1140,28 @@ export const SessionInit: React.FC = () => {
             <Clock className="w-5 h-5 flex-shrink-0" />
             {!isSidebarCollapsed && <span className="animate-fadeIn">Muraja'ah Rumah</span>}
           </button>
+
+          <button
+            onClick={() => {
+              if (activeSession) {
+                alert("Sesi Talaqqi sedang aktif! Harap simpan atau batalkan sesi terlebih dahulu sebelum berpindah menu.");
+                return;
+              }
+              setActiveTab('password');
+              setIsMobileMenuOpen(false);
+            }}
+            className={cn(
+              "w-full flex items-center rounded-xl text-sm font-bold transition-all duration-200",
+              isSidebarCollapsed ? "justify-center px-0 py-3" : "justify-start space-x-3 px-4 py-3",
+              activeTab === 'password'
+                ? "bg-emerald-600 text-white shadow-lg shadow-emerald-950/20"
+                : "text-slate-400 hover:text-white hover:bg-slate-800/60"
+            )}
+            title={isSidebarCollapsed ? "Ubah Password" : undefined}
+          >
+            <Key className="w-5 h-5 flex-shrink-0" />
+            {!isSidebarCollapsed && <span className="animate-fadeIn">Ubah Password</span>}
+          </button>
         </nav>
 
         {/* Sidebar Footer User Profile */}
@@ -1192,8 +1215,11 @@ export const SessionInit: React.FC = () => {
                 {activeTab === 'ledger' && 'Buku Induk Ledger Nilai'}
                 {activeTab === 'komunikasi' && 'Buku Penghubung Wali Santri'}
                 {activeTab === 'home_murajaah' && 'Tugas & Laporan Muraja\'ah Mandiri'}
+                {activeTab === 'password' && 'Ubah Password Mandiri'}
               </h2>
-              <p className="text-xs text-gray-400 font-medium">Selamat bertugas kembali, Ustadz {user?.name} | {appName}</p>
+              <p className="text-xs text-gray-400 font-medium">
+                {activeTab === 'password' ? 'Ubah password login Anda saat ini secara mandiri.' : `Selamat bertugas kembali, Ustadz ${user?.name} | ${appName}`}
+              </p>
             </div>
             <div className="flex items-center space-x-4">
               <NotificationCenter />
@@ -3037,6 +3063,76 @@ export const SessionInit: React.FC = () => {
                   <MutabaahMurojaahReport />
                 </div>
               </div>
+            </div>
+          )}
+
+          {activeTab === 'password' && (
+            <div className="max-w-md mx-auto bg-white rounded-3xl p-8 border border-gray-100 shadow-sm space-y-6 text-left animate-fadeIn">
+              <div>
+                <h3 className="text-xl font-extrabold text-gray-900">Ubah Password Anda</h3>
+                <p className="text-xs text-gray-400 mt-1">Ubah password login Anda saat ini secara mandiri.</p>
+              </div>
+
+              <form
+                onSubmit={async (e) => {
+                  e.preventDefault();
+                  const currentPw = (e.target as any).currentPassword.value;
+                  const newPw = (e.target as any).newPassword.value;
+                  const confirmPw = (e.target as any).confirmPassword.value;
+
+                  if (newPw !== confirmPw) {
+                    alert('Konfirmasi password baru tidak sesuai!');
+                    return;
+                  }
+                  if (newPw.length < 6) {
+                    alert('Password baru minimal 6 karakter!');
+                    return;
+                  }
+
+                  try {
+                    await api.changePassword(currentPw, newPw);
+                    alert('Password Anda berhasil diubah!');
+                    (e.target as HTMLFormElement).reset();
+                  } catch (err: any) {
+                    alert('Gagal mengubah password: ' + err.message);
+                  }
+                }}
+                className="space-y-4"
+              >
+                <div>
+                  <label className="block text-xs font-black text-gray-500 uppercase tracking-wider mb-1.5">Password Saat Ini</label>
+                  <input
+                    type="password"
+                    name="currentPassword"
+                    required
+                    className="w-full bg-gray-50 border border-gray-200 focus:border-emerald-500 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 font-medium transition-all text-gray-800"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-black text-gray-500 uppercase tracking-wider mb-1.5">Password Baru</label>
+                  <input
+                    type="password"
+                    name="newPassword"
+                    required
+                    className="w-full bg-gray-50 border border-gray-200 focus:border-emerald-500 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 font-medium transition-all text-gray-800"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-black text-gray-500 uppercase tracking-wider mb-1.5">Konfirmasi Password Baru</label>
+                  <input
+                    type="password"
+                    name="confirmPassword"
+                    required
+                    className="w-full bg-gray-50 border border-gray-200 focus:border-emerald-500 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 font-medium transition-all text-gray-800"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-2xl shadow-md hover:shadow-lg transition-all duration-200 cursor-pointer text-sm"
+                >
+                  Ubah Password
+                </button>
+              </form>
             </div>
           )}
         </main>

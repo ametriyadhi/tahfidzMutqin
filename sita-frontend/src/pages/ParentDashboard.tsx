@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../lib/api';
 import { cn } from '../lib/utils';
-import { LogOut, BookOpen, Flame, ChevronRight, ChevronLeft, Users, Share2, Send, X, AlertCircle, Sparkles, Trophy, Award, Printer, BarChart3, MessageSquare, LayoutDashboard, Clock } from 'lucide-react';
+import { LogOut, BookOpen, Flame, ChevronRight, ChevronLeft, Users, Share2, Send, X, AlertCircle, Sparkles, Trophy, Award, Printer, BarChart3, MessageSquare, LayoutDashboard, Clock, Key } from 'lucide-react';
 import { NotificationCenter } from '../components/NotificationCenter';
 import { useBranding } from '../context/BrandingContext';
 import { QURAN_PAGE_MAPPINGS } from '../lib/pageMappings';
@@ -2245,6 +2245,77 @@ export const ParentDashboard: React.FC = () => {
           </div>
         </main>
       )}
+      {mainTab === 'password' && (
+        <main className="w-full px-4 md:px-8 mt-6 max-w-md mx-auto pb-24 animate-fadeIn">
+          <div className="bg-white rounded-3xl p-8 border border-gray-100 shadow-sm space-y-6 text-left">
+            <div>
+              <h3 className="text-xl font-extrabold text-gray-900">Ubah Password Anda</h3>
+              <p className="text-xs text-gray-400 mt-1">Ubah password login Anda saat ini secara mandiri.</p>
+            </div>
+
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault();
+                const currentPw = (e.target as any).currentPassword.value;
+                const newPw = (e.target as any).newPassword.value;
+                const confirmPw = (e.target as any).confirmPassword.value;
+
+                if (newPw !== confirmPw) {
+                  alert('Konfirmasi password baru tidak sesuai!');
+                  return;
+                }
+                if (newPw.length < 6) {
+                  alert('Password baru minimal 6 karakter!');
+                  return;
+                }
+
+                try {
+                  await api.changePassword(currentPw, newPw);
+                  alert('Password Anda berhasil diubah!');
+                  (e.target as HTMLFormElement).reset();
+                } catch (err: any) {
+                  alert('Gagal mengubah password: ' + err.message);
+                }
+              }}
+              className="space-y-4"
+            >
+              <div>
+                <label className="block text-xs font-black text-gray-500 uppercase tracking-wider mb-1.5">Password Saat Ini</label>
+                <input
+                  type="password"
+                  name="currentPassword"
+                  required
+                  className="w-full bg-gray-50 border border-gray-200 focus:border-emerald-500 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 font-medium transition-all text-gray-800"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-black text-gray-500 uppercase tracking-wider mb-1.5">Password Baru</label>
+                <input
+                  type="password"
+                  name="newPassword"
+                  required
+                  className="w-full bg-gray-50 border border-gray-200 focus:border-emerald-500 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 font-medium transition-all text-gray-800"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-black text-gray-500 uppercase tracking-wider mb-1.5">Konfirmasi Password Baru</label>
+                <input
+                  type="password"
+                  name="confirmPassword"
+                  required
+                  className="w-full bg-gray-50 border border-gray-200 focus:border-emerald-500 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 font-medium transition-all text-gray-800"
+                />
+              </div>
+              <button
+                type="submit"
+                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-2xl shadow-md hover:shadow-lg transition-all duration-200 cursor-pointer text-sm"
+              >
+                Ubah Password
+              </button>
+            </form>
+          </div>
+        </main>
+      )}
 
       {/* ══ MURAJAAH FEEDBACK FORM MODAL ══ */}
       {activeAssignmentForFeedback && (
@@ -2560,6 +2631,16 @@ export const ParentDashboard: React.FC = () => {
         >
           <Award className="w-5 h-5" />
           <span className="text-[9px] font-black mt-1 uppercase tracking-wider">Sertifikat</span>
+        </button>
+        <button
+          onClick={() => setMainTab('password')}
+          className={cn(
+            "flex flex-col items-center py-1 cursor-pointer transition-colors bg-transparent border-0 outline-none",
+            mainTab === 'password' ? 'text-emerald-700 font-extrabold' : 'text-gray-400'
+          )}
+        >
+          <Key className="w-5 h-5" />
+          <span className="text-[9px] font-black mt-1 uppercase tracking-wider">Password</span>
         </button>
       </div>
     </div>

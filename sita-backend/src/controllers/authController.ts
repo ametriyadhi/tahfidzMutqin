@@ -109,3 +109,47 @@ export const getProfile = async (req: AuthRequest, res: Response) => {
     return res.status(500).json({ error: 'Terjadi kesalahan pada server' });
   }
 };
+
+export const changePassword = async (req: AuthRequest, res: Response) => {
+  if (!req.user) {
+    return res.status(401).json({ error: 'Tidak terautentikasi' });
+  }
+
+  const { currentPassword, newPassword } = req.body;
+
+  try {
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ error: 'Password lama dan baru harus diisi' });
+    }
+
+    if (newPassword.trim().length < 6) {
+      return res.status(400).json({ error: 'Password baru minimal 6 karakter' });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { id: req.user.id },
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: 'User tidak ditemukan' });
+    }
+
+    const isMatch = bcrypt.compareSync(currentPassword, user.passwordHash);
+    if (!isMatch) {
+      return res.status(400).json({ error: 'Password lama tidak sesuai' });
+    }
+
+    const salt = bcrypt.genSaltSync(10);
+    const passwordHash = bcrypt.hashSync(newPassword, salt);
+
+    await prisma.user.update({
+      where: { id: req.user.id },
+      data: { passwordHash },
+    });
+
+    return res.json({ success: true, message: 'Password berhasil diubah' });
+  } catch (error) {
+    console.error('Error changing password:', error);
+    return res.status(500).json({ error: 'Terjadi kesalahan pada server' });
+  }
+};
