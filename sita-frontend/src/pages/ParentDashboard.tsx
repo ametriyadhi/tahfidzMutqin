@@ -22,6 +22,7 @@ import {
 } from '../hooks/useQueries';
 import { HeaderOnlyFallback } from '../components/LoadingFallback';
 import { SitaActivitiesSlider } from '../components/SitaActivitiesSlider';
+import { MutabaahMurojaahReport } from '../components/MutabaahMurojaahReport';
 
 const getJuzPageRange = (juz: number) => {
   if (juz === 1) return { start: 1, end: 21 };
