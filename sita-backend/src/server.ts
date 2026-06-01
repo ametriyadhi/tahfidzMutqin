@@ -205,7 +205,7 @@ app.get('/api/parent/students', authenticateJWT, authorizeRoles(['parent']), asy
 // Session routes
 app.get('/api/sessions', authenticateJWT, listSessions);
 app.get('/api/sessions/:id', authenticateJWT, getSessionDetail);
-app.post('/api/sessions/finish', authenticateJWT, authorizeRoles(['ustadz']), finishSession);
+app.post('/api/sessions/finish', authenticateJWT, authorizeRoles(['ustadz', 'student']), finishSession);
 
 // Reports routes
 app.get('/api/students/:studentId/heatmap', authenticateJWT, getHeatmap);
