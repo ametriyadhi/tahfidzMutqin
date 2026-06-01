@@ -44,34 +44,6 @@ export const Login: React.FC = () => {
     }
   };
 
-  const handleQuickLogin = async (role: string) => {
-    setError(null);
-    setLoading(true);
-    const demoEmail = `${role}@sita.id`;
-    const demoPassword = 'password123';
-
-    try {
-      const user = await api.login(demoEmail, demoPassword);
-      if (user.role === 'ustadz') {
-        navigate('/');
-      } else if (user.role === 'student') {
-        navigate('/student/dashboard');
-      } else if (user.role === 'parent') {
-        navigate('/parent/dashboard');
-      } else if (user.role === 'admin') {
-        navigate('/admin/dashboard');
-      } else if (user.role === 'koordinator') {
-        navigate('/coordinator/dashboard');
-      } else {
-        navigate('/');
-      }
-    } catch (err: any) {
-      setError(err.message || 'Gagal login demo');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4 relative overflow-hidden font-sans">
       {/* Decorative Gradients */}
@@ -138,44 +110,6 @@ export const Login: React.FC = () => {
           </button>
         </form>
 
-        {/* Quick Demo Login */}
-        <div className="mt-8 pt-8 border-t border-gray-100">
-          <p className="text-xs text-center font-bold tracking-wider text-gray-400 uppercase mb-4">
-            Akses Cepat (Demo Akun)
-          </p>
-          <div className="grid grid-cols-2 gap-2">
-            <button
-              onClick={() => handleQuickLogin('ustadz')}
-              className="py-2.5 px-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-xl text-xs font-bold transition-all"
-            >
-              Role Ustadz
-            </button>
-            <button
-              onClick={() => handleQuickLogin('student')}
-              className="py-2.5 px-3 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-xl text-xs font-bold transition-all"
-            >
-              Role Santri
-            </button>
-            <button
-              onClick={() => handleQuickLogin('parent')}
-              className="py-2.5 px-3 bg-purple-50 hover:bg-purple-100 text-purple-700 rounded-xl text-xs font-bold transition-all"
-            >
-              Role Orang Tua
-            </button>
-            <button
-              onClick={() => handleQuickLogin('admin')}
-              className="py-2.5 px-3 bg-gray-50 hover:bg-gray-100 text-gray-700 rounded-xl text-xs font-bold transition-all"
-            >
-              Role Admin
-            </button>
-            <button
-              onClick={() => handleQuickLogin('koordinator')}
-              className="py-2.5 px-3 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-xl text-xs font-bold transition-all col-span-2"
-            >
-              Role Koordinator
-            </button>
-          </div>
-        </div>
       </div>
     </div>
   );
