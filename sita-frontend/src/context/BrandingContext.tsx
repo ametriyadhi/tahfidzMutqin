@@ -40,6 +40,19 @@ export const BrandingProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     fetchBranding();
   }, []);
 
+  useEffect(() => {
+    const favicon = document.querySelector("link[rel*='icon']") as HTMLLinkElement;
+    if (favicon) {
+      favicon.href = appLogo || '/favicon.svg';
+    } else {
+      const newFavicon = document.createElement('link');
+      newFavicon.rel = 'icon';
+      newFavicon.type = 'image/svg+xml';
+      newFavicon.href = appLogo || '/favicon.svg';
+      document.head.appendChild(newFavicon);
+    }
+  }, [appLogo]);
+
   const refreshBranding = async () => {
     setLoading(true);
     await fetchBranding();
