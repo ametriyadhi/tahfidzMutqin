@@ -162,7 +162,11 @@ export const TasmiSession: React.FC = () => {
         notesUstadz: `Tasmi' ${tasmiMode === 'mandiri' ? 'Mandiri' : 'Teman'}`
       });
       alert('Sesi Tasmi berhasil disimpan!');
-      navigate('/dashboard');
+      if (user.role === 'student') {
+        navigate('/student/dashboard');
+      } else {
+        navigate('/');
+      }
     } catch (err: any) {
       alert(err.message || 'Gagal menyimpan sesi');
     }
