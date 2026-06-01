@@ -4,7 +4,7 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-export const listDocumentation = async (req: AuthRequest, res: Response) => {
+export const listDocumentation = async (_req: AuthRequest, res: Response) => {
   try {
     const documentationList = await prisma.sitaDocumentation.findMany({
       orderBy: { createdAt: 'desc' }

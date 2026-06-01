@@ -378,15 +378,27 @@ export const assignStudentsToSubClassroom = async (req: AuthRequest, res: Respon
   }
 
   try {
-    const data = studentIds.map(studentId => ({
-      subClassroomId,
-      studentId
-    }));
+    const sIds: number[] = studentIds.map((id: any) => parseInt(id)).filter((id: number) => !isNaN(id));
 
-    await prisma.subClassroomStudent.createMany({
-      data,
-      skipDuplicates: true
+    // Filter duplicates in memory to avoid key constraint error
+    const existing = await prisma.subClassroomStudent.findMany({
+      where: {
+        subClassroomId,
+        studentId: { in: sIds }
+      },
+      select: { studentId: true }
     });
+    const existingIds = new Set(existing.map(e => e.studentId));
+    const toInsert = sIds.filter(id => !existingIds.has(id));
+
+    if (toInsert.length > 0) {
+      await prisma.subClassroomStudent.createMany({
+        data: toInsert.map(studentId => ({
+          subClassroomId,
+          studentId
+        }))
+      });
+    }
 
     return res.json({ success: true, message: 'Siswa berhasil ditambahkan ke sub-kelas' });
   } catch (error) {

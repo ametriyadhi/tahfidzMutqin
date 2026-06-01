@@ -1,4 +1,5 @@
 import express from 'express';
+import path from 'path';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { PrismaClient } from '@prisma/client';
@@ -309,6 +310,15 @@ app.post('/api/notifications/:id/read', authenticateJWT, async (req: AuthRequest
     console.error('Error reading notification:', error);
     return res.status(500).json({ error: 'Terjadi kesalahan pada server' });
   }
+});
+
+// Serve SITA Frontend static files in production
+const frontendDistPath = path.join(__dirname, '../../sita-frontend/dist');
+app.use(express.static(frontendDistPath));
+
+// Fallback all other routes to React SPA index.html
+app.get('*', (_req, res) => {
+  res.sendFile(path.join(frontendDistPath, 'index.html'));
 });
 
 app.listen(PORT, () => {
